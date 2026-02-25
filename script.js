@@ -14,12 +14,23 @@ const TOTAL_PAGES = 6; // concept pages
 
 // ===== PAGE NAVIGATION =====
 function goTo(pageId) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const target = document.getElementById(pageId);
-  if (target) {
-    target.classList.add('active');
-    window.scrollTo(0, 0);
-  }
+
+  // wait until DOM is ready
+  setTimeout(() => {
+
+    const pages = document.querySelectorAll('.page');
+    pages.forEach(p => p.classList.remove('active'));
+
+    const target = document.getElementById(pageId);
+
+    if (target) {
+      target.classList.add('active');
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      console.warn("Page not found:", pageId);
+    }
+
+  }, 10);
 }
 
 function completeAndGo(fromId, toId) {
@@ -453,6 +464,7 @@ document.head.appendChild(style);
 document.addEventListener('DOMContentLoaded', () => {
   renderQuestion();
   updateProgress();
+   goTo('page-home');
 
   // Make flashcards accessible via keyboard
   document.querySelectorAll('.flashcard').forEach(card => {
