@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 6 — Links & Frames in HTML</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pu:#7c3aed;--pul:#ede9fe;
+  --bl:#2563eb;--bll:#dbeafe;
+  --gr:#059669;--grl:#d1fae5;
+  --or:#ea580c;--orl:#ffedd5;
+  --pk:#db2777;--pkl:#fce7f3;
+  --te:#0891b2;--tel:#cffafe;
+  --ye:#d97706;--yel:#fef3c7;
+  --re:#dc2626;--dk:#1e1b4b;
+  --tx:#374151;--tl:#6b7280;
+  --bg:#f8fafc;--wh:#fff;
+  --sh:0 4px 24px rgba(0,0,0,.08);
+  --sh2:0 8px 40px rgba(0,0,0,.14);
+  --ra:16px;--rs:10px;
+  --tr:all .3s cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden}
+
+/* CONFETTI */
+#cc{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999}
+
+/* STARS */
+#sd{position:fixed;top:16px;right:16px;background:linear-gradient(135deg,#ffd700,#ffb700);color:#7c3a00;padding:8px 16px;border-radius:50px;font-weight:800;font-size:14px;z-index:1000;box-shadow:0 2px 12px rgba(255,183,0,.4);transition:var(--tr)}
+
+/* PROGRESS */
+#gp{position:fixed;top:0;left:0;width:100%;height:6px;background:#e5e7eb;z-index:999}
+#pf{height:100%;background:linear-gradient(90deg,var(--pu),var(--pk));transition:width .6s ease;width:0%}
+#pl{position:absolute;right:70px;top:10px;font-size:11px;color:var(--tl);font-weight:700}
+
+/* PAGES */
+.pg{display:none;min-height:100vh;animation:fi .5s ease}
+.pg.on{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* TOP NAV */
+.tn{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:#fff;border-bottom:2px solid #f1f5f9;position:sticky;top:6px;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.tn span{font-weight:800;font-size:16px;color:var(--dk)}
+.tn button,.nb{background:var(--pul);color:var(--pu);border:none;padding:8px 16px;border-radius:50px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:var(--tr)}
+.tn button:hover,.nb:hover{background:var(--pu);color:#fff;transform:scale(1.05)}
+
+/* CONTENT */
+.pc{max-width:800px;margin:0 auto;padding:24px 20px 80px}
+
+/* HOME */
+#ph{background:linear-gradient(135deg,#1e1b4b 0%,#312e81 40%,#4c1d95 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.hbg{position:absolute;inset:0;overflow:hidden}
+.ft{position:absolute;font-family:'Fira Code',monospace;color:rgba(255,255,255,.12);font-size:clamp(18px,3vw,32px);font-weight:600;animation:flt 6s ease-in-out infinite;user-select:none}
+.ft:nth-child(2){animation-delay:-1.5s}.ft:nth-child(3){animation-delay:-3s}.ft:nth-child(4){animation-delay:-4.5s}.ft:nth-child(5){animation-delay:-2s}
+@keyframes flt{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-20px) rotate(3deg)}}
+.hc{text-align:center;z-index:2;padding:40px 24px;max-width:600px}
+.cb{display:inline-block;background:rgba(255,255,255,.15);color:#c4b5fd;font-weight:800;font-size:14px;padding:6px 20px;border-radius:50px;margin-bottom:20px;border:1px solid rgba(255,255,255,.2);letter-spacing:2px;text-transform:uppercase}
+.ht{font-size:clamp(32px,7vw,56px);font-weight:900;color:#fff;line-height:1.15;margin-bottom:16px}
+.ht .ac{background:linear-gradient(135deg,#f472b6,#fb923c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hs{color:#c4b5fd;font-size:18px;font-weight:600;margin-bottom:28px}
+.htops{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:36px}
+.htops span{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:8px 16px;border-radius:50px;font-size:14px;font-weight:700}
+.bs{background:linear-gradient(135deg,#f472b6,#fb923c);color:#fff;border:none;padding:16px 40px;border-radius:50px;font-family:inherit;font-size:20px;font-weight:800;cursor:pointer;transition:var(--tr);box-shadow:0 8px 30px rgba(244,114,182,.4)}
+.bs:hover{transform:translateY(-3px) scale(1.05);box-shadow:0 12px 40px rgba(244,114,182,.6)}
+.hn{color:rgba(255,255,255,.5);font-size:14px;margin-top:16px}
+
+/* CONCEPT HEADER */
+.ch{display:flex;align-items:center;gap:20px;padding:24px;border-radius:var(--ra);margin-bottom:24px;color:#fff;position:relative;overflow:hidden}
+.ch::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.1)}
+.ch.pu{background:linear-gradient(135deg,#7c3aed,#4c1d95)}.ch.bl{background:linear-gradient(135deg,#2563eb,#1e40af)}.ch.gr{background:linear-gradient(135deg,#059669,#065f46)}.ch.or{background:linear-gradient(135deg,#ea580c,#92400e)}.ch.pk{background:linear-gradient(135deg,#db2777,#831843)}.ch.te{background:linear-gradient(135deg,#0891b2,#164e63)}.ch.ye{background:linear-gradient(135deg,#d97706,#78350f)}
+.cn{font-size:36px;font-weight:900;width:60px;height:60px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ch h2{font-size:22px;font-weight:900}.ch p{opacity:.85;font-size:15px}
+
+/* INFO BOXES */
+.ab{background:linear-gradient(135deg,#fef3c7,#fde68a);border-left:4px solid var(--ye);padding:16px 20px;border-radius:var(--rs);margin-bottom:20px;font-size:15px;line-height:1.6}
+.dy{background:linear-gradient(135deg,#dbeafe,#bfdbfe);border-left:4px solid var(--bl);padding:16px 20px;border-radius:var(--rs);margin:20px 0;font-size:14px;line-height:1.6}
+.mt{background:linear-gradient(135deg,#d1fae5,#a7f3d0);border-left:4px solid var(--gr);padding:16px 20px;border-radius:var(--rs);margin:16px 0;font-size:15px;line-height:1.6}
+.et{background:linear-gradient(135deg,#ede9fe,#ddd6fe);border-left:4px solid var(--pu);padding:16px 20px;border-radius:var(--rs);margin:20px 0;font-size:14px;line-height:1.6}
+.wb{background:linear-gradient(135deg,#fee2e2,#fecaca);border-left:4px solid var(--re);padding:16px 20px;border-radius:var(--rs);margin:16px 0;font-size:14px;line-height:1.7}
+.cm{background:linear-gradient(135deg,#fee2e2,#fecaca);border-left:4px solid var(--re);padding:16px 20px;border-radius:var(--rs);margin:16px 0;font-size:14px}
+.ce{background:#fff;border-radius:var(--rs);padding:16px 20px;margin-bottom:20px;box-shadow:var(--sh);line-height:1.7;font-size:15px}
+.sh{font-size:18px;font-weight:800;color:var(--dk);margin:24px 0 12px;display:flex;align-items:center;gap:8px}
+
+/* CODE */
+code{font-family:'Fira Code',monospace;background:#f1f5f9;padding:2px 8px;border-radius:6px;font-size:13px;color:var(--pu)}
+.bcd{display:block;background:#1e1b4b;color:#a5f3fc;padding:16px;border-radius:var(--rs);font-family:'Fira Code',monospace;font-size:13px;white-space:pre;margin:12px 0;overflow-x:auto}
+.cb2{background:#1e1b4b;border-radius:var(--rs);margin:16px 0;overflow:hidden}
+.cl{background:rgba(255,255,255,.08);color:#94a3b8;font-size:12px;font-weight:700;padding:8px 16px;letter-spacing:1px;text-transform:uppercase}
+.cb2 pre{padding:16px;overflow-x:auto}
+.cb2 code{background:transparent;color:#a5f3fc;font-size:13px;padding:0;white-space:pre}
+
+/* BUTTONS */
+.bn{background:linear-gradient(135deg,var(--pu),var(--pk));color:#fff;border:none;padding:14px 32px;border-radius:50px;font-family:inherit;font-size:16px;font-weight:800;cursor:pointer;transition:var(--tr);box-shadow:0 4px 20px rgba(124,58,237,.3)}
+.bn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(124,58,237,.4)}
+.scb{text-align:center;margin-top:40px;padding-top:20px;border-top:2px solid #f1f5f9}
+
+/* TAG GRID */
+.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin:20px 0}
+.tc{background:#fff;border-radius:var(--rs);padding:16px;box-shadow:var(--sh);transition:var(--tr);border-top:4px solid var(--pu)}
+.tc[data-c="pu"]{border-top-color:var(--pu)}.tc[data-c="bl"]{border-top-color:var(--bl)}.tc[data-c="gr"]{border-top-color:var(--gr)}.tc[data-c="or"]{border-top-color:var(--or)}.tc[data-c="pk"]{border-top-color:var(--pk)}.tc[data-c="te"]{border-top-color:var(--te)}.tc[data-c="ye"]{border-top-color:var(--ye)}.tc[data-c="re"]{border-top-color:var(--re)}
+.tc:hover{transform:translateY(-4px);box-shadow:var(--sh2)}
+.tn2{display:block;font-family:'Fira Code',monospace;font-size:16px;font-weight:700;color:var(--pu);margin-bottom:6px}
+.tc p{font-size:13px;color:var(--tl);line-height:1.5;margin-bottom:8px}.tc code{font-size:12px}
+
+/* TWO COL */
+.twc{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.tyc{border-radius:var(--ra);padding:24px;text-align:center;transition:var(--tr)}.tyc:hover{transform:translateY(-4px)}
+.tyc.int{background:linear-gradient(135deg,#dbeafe,#bfdbfe);border:2px solid var(--bl)}.tyc.ext{background:linear-gradient(135deg,#d1fae5,#a7f3d0);border:2px solid var(--gr)}
+.ti{font-size:36px;margin-bottom:10px}.tyc h4{font-size:18px;font-weight:800;margin-bottom:8px}.tyc p{font-size:14px;line-height:1.5}
+.ec{display:inline-block;background:rgba(255,255,255,.6);padding:6px 12px;border-radius:50px;font-size:12px;font-weight:700;margin-top:10px}
+
+/* HREF TYPES */
+.tht{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:16px 0}
+.ht2{border-radius:var(--rs);padding:20px;text-align:center;transition:var(--tr);border:2px solid transparent}.ht2:hover{transform:translateY(-4px)}
+.ht2.pu{background:var(--pul);border-color:var(--pu)}.ht2.bl{background:var(--bll);border-color:var(--bl)}.ht2.gr{background:var(--grl);border-color:var(--gr)}
+.hi{font-size:28px;display:block;margin-bottom:8px}.ht2 h5{font-size:15px;font-weight:800;margin-bottom:6px}.ht2 p{font-size:12px;color:var(--tl);margin-bottom:10px}.ht2 code{font-size:11px;display:block}
+
+/* DEMO */
+.id{background:#fff;border-radius:var(--rs);padding:20px;box-shadow:var(--sh);margin:16px 0}
+.id p{margin-bottom:12px;font-size:14px}
+.dr{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.dr label{font-size:13px;font-weight:700;width:70px;flex-shrink:0}
+.dr input{flex:1;border:2px solid #e5e7eb;border-radius:8px;padding:8px 12px;font-family:inherit;font-size:14px;transition:var(--tr)}
+.dr input:focus{outline:none;border-color:var(--pu)}
+.do{background:#1e1b4b;border-radius:8px;padding:12px 16px;margin-top:12px}
+.ol{display:block;color:#64748b;font-size:11px;font-weight:700;margin-bottom:6px;text-transform:uppercase}
+#adc{background:transparent;color:#a5f3fc;font-size:13px;padding:0;word-break:break-all}
+
+/* LINK STATES */
+.lsv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:16px 0}
+.sc{background:#fff;border-radius:var(--rs);padding:20px;text-align:center;box-shadow:var(--sh);transition:var(--tr);border-top:4px solid #7c3aed}
+.sc:hover{transform:translateY(-4px);box-shadow:var(--sh2)}
+.si{font-size:28px;margin-bottom:8px;display:block}.sc h5{font-weight:800;font-size:14px;color:var(--dk);margin-bottom:6px}.sc p{font-size:12px;color:var(--tl);line-height:1.5;margin-bottom:12px}
+.sd{padding:6px 12px;border-radius:6px;font-size:13px;font-weight:700;display:inline-block;text-decoration:underline}
+.sd1{color:blue;background:#eff6ff}.sd2{color:purple;background:#f5f3ff}.sd3{color:green;background:#f0fdf4;cursor:pointer}.sd4{color:green;background:#f0fdf4}
+.bda{text-align:center;padding:24px;background:#f8fafc;border-radius:var(--rs);margin:16px 0}
+.dbt{background:linear-gradient(135deg,var(--gr),#065f46);color:#fff;padding:12px 28px;border-radius:8px;font-weight:700;font-size:15px;cursor:pointer;border:none;font-family:inherit;transition:var(--tr)}
+.dbt:hover{background:linear-gradient(135deg,var(--re),#7f1d1d);transform:scale(1.05)}
+
+/* ATTR TABLE */
+.at{background:#fff;border-radius:var(--rs);overflow:hidden;box-shadow:var(--sh);margin:16px 0}
+.ah{display:grid;grid-template-columns:120px 1fr;background:var(--dk);color:#fff;padding:12px 16px;font-weight:800;font-size:13px}
+.ar{display:grid;grid-template-columns:120px 1fr;padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:14px;transition:var(--tr)}
+.ar:hover{background:#f8fafc}.ar:last-child{border-bottom:none}
+.an{font-family:'Fira Code',monospace;font-weight:700;color:var(--pu)}
+.cpb{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+.ci{border-radius:var(--rs);padding:20px;text-align:center}
+.aud{background:linear-gradient(135deg,#fce7f3,#fbcfe8);border:2px solid var(--pk)}.vid{background:linear-gradient(135deg,#dbeafe,#bfdbfe);border:2px solid var(--bl)}
+.ci h5{font-size:16px;font-weight:800;margin-bottom:10px}.ci p{font-family:'Fira Code',monospace;font-size:14px}
+
+/* BROWSER MOCKUP */
+.bm{border:2px solid #e5e7eb;border-radius:var(--rs);overflow:hidden;background:#fff;box-shadow:var(--sh);margin:16px 0}
+.bb{background:#f1f5f9;padding:8px 16px;font-size:13px;font-weight:700;color:var(--tl);border-bottom:1px solid #e5e7eb}
+.by{padding:16px}
+.ibs{display:flex;gap:10px;margin-top:12px;justify-content:center;flex-wrap:wrap}
+.ib{width:130px;height:90px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:2px dashed}
+.bf{background:#dbeafe;border-color:var(--bl);color:var(--bl)}.yf{background:#fef3c7;border-color:var(--ye);color:var(--ye)}.pf{background:#fce7f3;border-color:var(--pk);color:var(--pk)}
+.bel{background:var(--pul);border-radius:var(--rs);padding:20px;margin:16px 0}
+.bel h4{font-size:16px;margin-bottom:12px;color:var(--pu)}
+.bei{padding:8px 12px;background:#fff;border-radius:8px;margin-bottom:8px;font-size:14px;font-weight:600}
+
+/* BRAIN */
+.bq{background:#fff;border-radius:var(--ra);box-shadow:var(--sh);margin-bottom:16px;overflow:hidden;display:flex}
+.qn{background:linear-gradient(135deg,var(--pu),var(--dk));color:#fff;font-size:22px;font-weight:900;padding:20px;display:flex;align-items:flex-start;justify-content:center;min-width:60px}
+.qb{padding:20px;flex:1}.qb>p{font-size:15px;font-weight:600;margin-bottom:14px}
+.ops{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.op{padding:10px 20px;border:2px solid #e5e7eb;border-radius:50px;font-size:14px;font-weight:700;cursor:pointer;transition:var(--tr);background:#f8fafc;font-family:inherit}
+.op:hover{border-color:var(--pu);background:var(--pul)}
+.op.ok{background:var(--grl);border-color:var(--gr);color:var(--gr)}
+.op.no{background:#fee2e2;border-color:var(--re);color:var(--re)}
+.ar2{background:#f0fdf4;border:1px solid #a7f3d0;border-radius:var(--rs);padding:14px;font-size:14px;line-height:1.6;margin-bottom:10px}
+.ar2 p{margin-bottom:6px}
+.rb{background:var(--pul);color:var(--pu);border:2px solid var(--pu);padding:8px 20px;border-radius:50px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:var(--tr)}
+.rb:hover{background:var(--pu);color:#fff}
+
+/* FILL BLANKS */
+.fbs{margin:16px 0}
+.fq{background:#fff;border-radius:var(--rs);padding:14px 16px;margin-bottom:12px;box-shadow:var(--sh);font-size:15px;line-height:2.2;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fnum{font-weight:900;color:var(--pu);font-size:16px;flex-shrink:0}
+.fi{border:2px solid #e5e7eb;border-radius:8px;padding:6px 14px;font-family:inherit;font-size:14px;font-weight:700;width:150px;transition:var(--tr)}
+.fi:focus{outline:none;border-color:var(--pu)}
+.fi.ok{border-color:var(--gr);background:var(--grl);color:var(--gr)}
+.fi.no{border-color:var(--re);background:#fee2e2}
+
+/* TRUE FALSE */
+.tfs{margin:16px 0}
+.tfq{background:#fff;border-radius:var(--rs);padding:16px 20px;margin-bottom:12px;box-shadow:var(--sh)}
+.tfq>p{font-size:15px;font-weight:600;margin-bottom:12px}
+.tfbtns{display:flex;gap:10px;margin-bottom:10px}
+.tfb{padding:8px 28px;border:2px solid #e5e7eb;border-radius:50px;font-family:inherit;font-size:16px;font-weight:800;cursor:pointer;transition:var(--tr);background:#f8fafc}
+.tfb:hover{border-color:var(--pu)}
+.tfb.ok{background:var(--grl);border-color:var(--gr);color:var(--gr)}
+.tfb.no{background:#fee2e2;border-color:var(--re);color:var(--re)}
+.tfr{font-size:14px;padding:10px 14px;background:#f0fdf4;border-radius:8px;font-weight:600}
+
+/* LONG ANSWERS */
+.la{background:#fff;border-radius:var(--rs);box-shadow:var(--sh);margin-bottom:12px;overflow:hidden}
+.laq{padding:16px 20px;font-size:15px;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:var(--tr);background:linear-gradient(135deg,var(--pul),#f5f3ff)}
+.laq:hover{background:var(--pul)}
+.lat{color:var(--pu);font-size:18px;transition:var(--tr)}
+.laa{padding:20px;font-size:14px;line-height:1.7;border-top:1px solid #f1f5f9}
+.laa ul{padding-left:20px;margin:10px 0}.laa li{margin-bottom:6px}
+.pr{display:block;margin-top:12px;color:var(--tl);font-size:12px}
+.dt{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+.dt th{background:var(--dk);color:#fff;padding:10px;text-align:left}
+.dt td{padding:10px;border:1px solid #e5e7eb}
+.dt tr:nth-child(even) td{background:#f8fafc}
+
+/* FLASHCARDS */
+.fcg{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px;margin:20px 0}
+.fc{height:150px;perspective:1000px;cursor:pointer;position:relative}
+.fcf,.fcb{position:absolute;inset:0;border-radius:var(--rs);padding:16px;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:700;backface-visibility:hidden;transition:transform .6s cubic-bezier(.4,0,.2,1)}
+.fcf{background:linear-gradient(135deg,var(--pu),var(--dk));color:#fff;font-size:15px}
+.fcb{background:linear-gradient(135deg,var(--grl),#d1fae5);color:var(--dk);transform:rotateY(180deg);font-size:13px;font-weight:600;line-height:1.5}
+.fcb code{background:rgba(0,0,0,.1);font-size:11px;display:block;margin-top:6px}
+.fc.flp .fcf{transform:rotateY(-180deg)}.fc.flp .fcb{transform:rotateY(0)}
+
+/* MIND MAP */
+.mm{background:#fff;border-radius:var(--ra);padding:24px;box-shadow:var(--sh);text-align:center;margin:16px 0}
+.mc{display:inline-block;background:linear-gradient(135deg,var(--pu),var(--dk));color:#fff;padding:16px 28px;border-radius:50px;font-size:15px;font-weight:800;margin-bottom:24px;line-height:1.4}
+.mb{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.mbr{text-align:center;min-width:110px}
+.mn{padding:10px 16px;border-radius:50px;font-size:13px;font-weight:800;color:#fff;margin-bottom:10px;display:inline-block}
+.mbr.pu .mn{background:var(--pu)}.mbr.bl .mn{background:var(--bl)}.mbr.gr .mn{background:var(--gr)}.mbr.or .mn{background:var(--or)}.mbr.pk .mn{background:var(--pk)}
+.mbc{display:flex;flex-direction:column;gap:4px;align-items:center}
+.mbc span{background:#f1f5f9;padding:4px 10px;border-radius:50px;font-size:11px;font-weight:700;color:var(--tx)}
+
+/* QUIZ */
+#qsb{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:var(--rs);padding:14px 20px;margin-bottom:20px;box-shadow:var(--sh);font-weight:700;font-size:15px}
+#qqb{background:#fff;border-radius:var(--ra);padding:28px;box-shadow:var(--sh);margin-bottom:16px}
+#qqb .qt{font-size:18px;font-weight:700;margin-bottom:20px;line-height:1.5}
+.qos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.qo{padding:14px 20px;border:2px solid #e5e7eb;border-radius:var(--rs);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:var(--tr);background:#f8fafc;text-align:left}
+.qo:hover{border-color:var(--pu);background:var(--pul)}
+.qo.ok{background:var(--grl);border-color:var(--gr);color:var(--gr)}
+.qo.no{background:#fee2e2;border-color:var(--re);color:var(--re)}
+#qfb{background:#fff;border-radius:var(--rs);padding:16px 20px;margin-bottom:16px;box-shadow:var(--sh);font-size:15px;font-weight:600;line-height:1.6}
+.rb2{background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:var(--ra);padding:40px;text-align:center;box-shadow:var(--sh)}
+.rb2 h3{font-size:28px;margin-bottom:12px}.rb2 p{font-size:16px;margin-bottom:20px}
+#rs{font-size:36px;margin-bottom:20px;letter-spacing:8px}
+.rb2 button{margin:8px}
+
+/* TEACHER */
+.ts{background:linear-gradient(135deg,#dbeafe,#bfdbfe);border-radius:var(--rs);padding:20px;margin-bottom:24px;line-height:1.7;font-size:15px}
+.ts h3{font-size:18px;margin-bottom:10px}
+.cl2{background:#fff;border-radius:var(--rs);padding:20px;box-shadow:var(--sh)}
+.ci2{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f1f5f9;font-size:14px;font-weight:600;cursor:pointer;transition:var(--tr)}
+.ci2:last-child{border-bottom:none}.ci2:hover{color:var(--pu)}
+.ci2 input[type=checkbox]{width:18px;height:18px;accent-color:var(--pu);cursor:pointer}
+.pr2{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-top:16px}
+.ri{background:#fff;border-radius:var(--rs);padding:20px;box-shadow:var(--sh);text-align:center}
+.rl{display:block;font-size:12px;color:var(--tl);font-weight:700;margin-bottom:8px;text-transform:uppercase}
+.rv{font-size:24px;font-weight:900;color:var(--pu)}
+
+/* UTILITY */
+.hi2{display:none!important}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  .pc{padding:16px 14px 80px}
+  .ch{flex-direction:column;text-align:center;padding:20px}
+  .cn{margin:0 auto}
+  .tg{grid-template-columns:1fr 1fr}
+  .twc,.tht,.cpb{grid-template-columns:1fr}
+  .fcg{grid-template-columns:1fr 1fr}
+  .bq{flex-direction:column}
+  .qn{padding:12px;min-width:auto;border-radius:0}
+  .qos{grid-template-columns:1fr}
+  .mb{flex-direction:column;align-items:center}
+  .ibs{flex-direction:column;align-items:center}
+}
+@media(max-width:380px){.fcg,.tg{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<canvas id="cc"></canvas>
+<div id="sd">⭐ <span id="sc2">0</span></div>
+<div id="gp"><div id="pf"></div><span id="pl">0% Complete</span></div>
+
+<!-- ======= HOME ======= -->
+<section id="ph" class="pg on">
+  <div class="hbg">
+    <div class="ft" style="top:10%;left:5%">&lt;A&gt;</div>
+    <div class="ft" style="top:20%;right:8%">&lt;/A&gt;</div>
+    <div class="ft" style="top:60%;left:3%">&lt;iFrame&gt;</div>
+    <div class="ft" style="bottom:15%;right:5%">&lt;AUDIO&gt;</div>
+    <div class="ft" style="bottom:30%;left:12%">&lt;VIDEO&gt;</div>
+  </div>
+  <div class="hc">
+    <div class="cb">Chapter 6</div>
+    <h1 class="ht">Links &amp; Frames<br>in <span class="ac">HTML</span></h1>
+    <p class="hs">Your super-friendly guide to making web pages talk to each other! 🚀</p>
+    <div class="htops">
+      <span>🔗 Hyperlinks</span><span>⚓ Anchor Tag</span><span>🎨 CSS States</span><span>🎵 Audio/Video</span><span>🖼️ Frames</span>
+    </div>
+    <button class="bs" onclick="gt('pr')">🚀 Start Learning!</button>
+    <p class="hn">6 concepts · Brain Developer · Flashcards · Fun Quiz</p>
+  </div>
+</section>
+
+<!-- ======= REVISION ======= -->
+<section id="pr" class="pg">
+  <nav class="tn"><button onclick="gt('ph')">🏠</button><span>HTML Tags Revision</span><button onclick="gt('pl2')">Next →</button></nav>
+  <div class="pc">
+    <div class="ch pu"><span class="cn">1</span><div><h2>Quick Revision: HTML Tags</h2><p>Before we jump in — let's refresh! 🧠</p></div></div>
+    <div class="ab">🏗️ <strong>Real-life Analogy:</strong> HTML tags are like parts of a building. <code>&lt;HTML&gt;</code> = whole building, <code>&lt;HEAD&gt;</code> = signboard outside, <code>&lt;BODY&gt;</code> = everything inside!</div>
+    <div class="tg">
+      <div class="tc" data-c="pu"><span class="tn2">&lt;HTML&gt;</span><p>Tells the browser this is an HTML document!</p><code>&lt;HTML&gt;...&lt;/HTML&gt;</code></div>
+      <div class="tc" data-c="bl"><span class="tn2">&lt;HEAD&gt;</span><p>Contains page info — not shown on screen</p><code>&lt;HEAD&gt;...&lt;/HEAD&gt;</code></div>
+      <div class="tc" data-c="gr"><span class="tn2">&lt;TITLE&gt;</span><p>Sets the name shown on the browser tab 📌</p><code>&lt;TITLE&gt;...&lt;/TITLE&gt;</code></div>
+      <div class="tc" data-c="or"><span class="tn2">&lt;BODY&gt;</span><p>All visible content goes here!</p><code>&lt;BODY&gt;...&lt;/BODY&gt;</code></div>
+      <div class="tc" data-c="pk"><span class="tn2">&lt;Hn&gt;</span><p>Headings from H1 (biggest) to H6 (smallest)</p><code>&lt;H1&gt;...&lt;/H1&gt;</code></div>
+      <div class="tc" data-c="te"><span class="tn2">&lt;BR&gt; &lt;HR&gt;</span><p>Line break / Horizontal rule across page</p><code>&lt;BR&gt; &lt;HR&gt;</code></div>
+      <div class="tc" data-c="re"><span class="tn2">&lt;B&gt; &lt;I&gt; &lt;U&gt;</span><p><strong>Bold</strong>, <em>Italic</em>, <u>Underline</u> text styling</p><code>&lt;B&gt; &lt;I&gt; &lt;U&gt;</code></div>
+      <div class="tc" data-c="pu"><span class="tn2">&lt;IMG&gt;</span><p>Embeds an image into the web page 🖼️</p><code>&lt;IMG src="..."&gt;</code></div>
+      <div class="tc" data-c="bl"><span class="tn2">&lt;TABLE&gt;</span><p>Creates a data table with rows and columns</p><code>&lt;TABLE&gt;...&lt;/TABLE&gt;</code></div>
+      <div class="tc" data-c="gr"><span class="tn2">&lt;OL&gt; &lt;UL&gt; &lt;LI&gt;</span><p>Ordered list, Unordered list, List items</p><code>&lt;UL&gt;&lt;LI&gt;...&lt;/LI&gt;&lt;/UL&gt;</code></div>
+    </div>
+    <div class="dy">💡 <strong>Did You Know?</strong> HTML was invented by Tim Berners-Lee in 1991. The very first web page is still accessible online!</div>
+    <div class="scb"><button class="bn" onclick="cag('pr','pl2')">✅ Got it! Next: Linking Web Pages →</button></div>
+  </div>
+</section>
+
+<!-- ======= LINKING ======= -->
+<section id="pl2" class="pg">
+  <nav class="tn"><button onclick="gt('pr')">← Back</button><span>Linking Web Pages</span><button onclick="gt('pa')">Next →</button></nav>
+  <div class="pc">
+    <div class="ch bl"><span class="cn">2</span><div><h2>Linking Web Pages 🔗</h2><p>Making web pages talk to each other!</p></div></div>
+    <div class="ab">🏙️ <strong>Real-life Analogy:</strong> A website is like a city. Each web page is a shop. <strong>Hyperlinks</strong> are the roads — click a link, travel to another page instantly!</div>
+    <div class="ce"><p>A website has many pages. <strong>Hyperlinking</strong> connects them! When you hover over a link, your mouse pointer turns into a 👆 little hand.</p></div>
+    <h3 class="sh">🔀 Two Types of Linking</h3>
+    <div class="twc">
+      <div class="tyc int"><div class="ti">🏠</div><h4>Internal Linking</h4><p>Jumping to a <strong>different section</strong> on the <strong>same page</strong></p><div class="ec">Like scrolling to "Chapter 3" on the same page</div></div>
+      <div class="tyc ext"><div class="ti">🌐</div><h4>External Linking</h4><p>Going to a <strong>completely different</strong> website or page</p><div class="ec">Like clicking a link that opens Google!</div></div>
+    </div>
+    <div class="mt">🧠 <strong>Memory Trick:</strong> <em>IN</em>ternal = stays <em>IN</em>side the same page. <em>EX</em>ternal = goes <em>EX</em>it (outside)!</div>
+    <div class="dy">💡 <strong>Did You Know?</strong> The first hyperlink was created in 1968 by Douglas Engelbart — before the internet as we know it!</div>
+    <div class="scb"><button class="bn" onclick="cag('pl2','pa')">✅ Understood! Next: Anchor Tag →</button></div>
+  </div>
+</section>
+
+<!-- ======= ANCHOR ======= -->
+<section id="pa" class="pg">
+  <nav class="tn"><button onclick="gt('pl2')">← Back</button><span>Anchor Tag &amp; Href</span><button onclick="gt('pc2')">Next →</button></nav>
+  <div class="pc">
+    <div class="ch gr"><span class="cn">3</span><div><h2>The Anchor &lt;A&gt; Tag ⚓</h2><p>The magic tag that creates clickable links!</p></div></div>
+    <div class="ab">⚓ <strong>Real-life Analogy:</strong> An anchor tag is like a boat anchor — it <em>anchors</em> (connects) your text or image to another location on the web!</div>
+    <div class="ce"><p>The <code>&lt;A&gt;</code> tag marks text or an image as a <strong>hyperlink</strong> — something a user can click to go somewhere else. It needs a closing <code>&lt;/A&gt;</code> tag.</p></div>
+    <h3 class="sh">🔧 The HREF Attribute</h3>
+    <div class="cb2"><div class="cl">Syntax</div><pre><code>&lt;A href="value"&gt; CLICK HERE &lt;/A&gt;</code></pre></div>
+    <div class="tht">
+      <div class="ht2 pu"><span class="hi">🌐</span><h5>Absolute URL</h5><p>Full web address — links to another website</p><code>&lt;A href="http://www.google.com/"&gt;</code></div>
+      <div class="ht2 bl"><span class="hi">📄</span><h5>Relative URL</h5><p>Just the filename — links to file on same website</p><code>&lt;A href="click.html"&gt;</code></div>
+      <div class="ht2 gr"><span class="hi">📧</span><h5>Email Link</h5><p>Opens the user's email app to compose</p><code>&lt;A href="mailto:info@kips.in"&gt;</code></div>
+    </div>
+    <h3 class="sh">🖼️ Images as Links</h3>
+    <div class="ce"><p>Wrap an <code>&lt;IMG&gt;</code> inside an <code>&lt;A&gt;</code> tag to make any image clickable!</p></div>
+    <div class="cb2"><div class="cl">Image as a Link</div><pre><code>&lt;A href="image_link.html"&gt;
+  &lt;IMG src="Quote.jpg" height=50% width=50%&gt;
+&lt;/A&gt;</code></pre></div>
+    <h3 class="sh">🧪 Live Code Generator — Try It!</h3>
+    <div class="id">
+      <p>Edit below and watch the anchor tag update live:</p>
+      <div class="dr"><label>Link Text:</label><input type="text" id="lti" value="Click Me!" oninput="upd()"/></div>
+      <div class="dr"><label>URL:</label><input type="text" id="lui" value="https://www.google.com" oninput="upd()"/></div>
+      <div class="do"><span class="ol">Generated Code:</span><code id="adc">&lt;A href="https://www.google.com"&gt;Click Me!&lt;/A&gt;</code></div>
+    </div>
+    <div class="et">📝 <strong>Exam Tip:</strong> "CLICK HERE" in <code>&lt;A href="value"&gt;CLICK HERE&lt;/A&gt;</code> is called the <strong>Hypertext</strong>. The browser shows it underlined and coloured.</div>
+    <div class="scb"><button class="bn" onclick="cag('pa','pc2')">✅ Understood! Next: CSS &amp; Links →</button></div>
+  </div>
+</section>
+
+<!-- ======= CSS LINKS ======= -->
+<section id="pc2" class="pg">
+  <nav class="tn"><button onclick="gt('pa')">← Back</button><span>CSS &amp; Links</span><button onclick="gt('pmd')">Next →</button></nav>
+  <div class="pc">
+    <div class="ch or"><span class="cn">4</span><div><h2>CSS &amp; Links 🎨</h2><p>Make your links look amazing!</p></div></div>
+    <div class="ab">🎭 <strong>Real-life Analogy:</strong> A link is like an actor with 4 costumes — just watching, already seen the show, hovering nearby, or actively clicking!</div>
+    <h3 class="sh">🔴 4 Link States in CSS</h3>
+    <div class="lsv">
+      <div class="sc" style="border-top-color:#e74c3c"><span class="si">🔵</span><h5>A:link</h5><p>Normal, <strong>unvisited</strong> link</p><div class="sd sd1">Click Me</div></div>
+      <div class="sc" style="border-top-color:#8e44ad"><span class="si">🟣</span><h5>A:visited</h5><p>Link user has <strong>already visited</strong></p><div class="sd sd2">Visited</div></div>
+      <div class="sc" style="border-top-color:#27ae60"><span class="si">🟢</span><h5>A:hover</h5><p>When mouse <strong>moves over</strong> link</p><div class="sd sd3">Hover Me!</div></div>
+      <div class="sc" style="border-top-color:#f39c12"><span class="si">🟠</span><h5>A:active</h5><p>When link is being <strong>clicked</strong></p><div class="sd sd4">Clicking!</div></div>
+    </div>
+    <div class="cb2"><div class="cl">CSS Example</div><pre><code>A:link    { color: red; text-decoration: overline; }
+A:visited { color: yellow; }
+A:hover   { color: purple; }
+A:active  { color: green; }</code></pre></div>
+    <div class="wb">⚠️ <strong>Order Matters!</strong> Always write: A:link → A:visited → A:hover → A:active</div>
+    <h3 class="sh">🔘 Links as Buttons</h3>
+    <div class="ce"><p>Using CSS you can make a link look like a button! Key properties: <code>background-color</code>, <code>padding</code>, <code>text-decoration:none</code>, <code>display:inline-block</code></p></div>
+    <div class="bda"><button class="dbt">✨ I'm a Link Button!</button></div>
+    <div class="dy">💡 <strong>Did You Know?</strong> By default: unvisited = <span style="color:#3498db;font-weight:700">blue</span>, visited = <span style="color:#8e44ad;font-weight:700">purple</span>, active = <span style="color:#e74c3c;font-weight:700">red</span>!</div>
+    <div class="scb"><button class="bn" onclick="cag('pc2','pmd')">✅ Styled! Next: Audio &amp; Video →</button></div>
+  </div>
+</section>
+
+<!-- ======= MEDIA ======= -->
+<section id="pmd" class="pg">
+  <nav class="tn"><button onclick="gt('pc2')">← Back</button><span>Audio &amp; Video</span><button onclick="gt('pfr')">Next →</button></nav>
+  <div class="pc">
+    <div class="ch pk"><span class="cn">5</span><div><h2>Audio &amp; Video in HTML 🎵🎬</h2><p>Bring your web pages to life with multimedia!</p></div></div>
+    <div class="ab">🎭 <strong>Real-life Analogy:</strong> Adding audio to a webpage is like installing a speaker in a room. The <code>&lt;AUDIO&gt;</code> tag is the speaker, and <code>src</code> is the wire connecting it to the music!</div>
+    <h3 class="sh">🎵 Inserting Audio — &lt;AUDIO&gt; Tag</h3>
+    <div class="at">
+      <div class="ah"><span>Attribute</span><span>What it does</span></div>
+      <div class="ar"><span class="an">src</span><span>Specifies the URL of the audio file 📁</span></div>
+      <div class="ar"><span class="an">controls</span><span>Shows play/pause/volume controls 🎛️</span></div>
+      <div class="ar"><span class="an">autoplay</span><span>Plays automatically when page loads ▶️</span></div>
+      <div class="ar"><span class="an">loop</span><span>Replays the audio when it ends 🔁</span></div>
+    </div>
+    <div class="cb2"><div class="cl">Audio Example</div><pre><code>&lt;AUDIO controls src="D:\Motivation.mp3"&gt;
+  Your browser does not support the audio tag.
+&lt;/AUDIO&gt;</code></pre></div>
+    <h3 class="sh">🎬 Inserting Video — &lt;VIDEO&gt; Tag</h3>
+    <div class="at">
+      <div class="ah"><span>Attribute</span><span>What it does</span></div>
+      <div class="ar"><span class="an">src</span><span>Specifies the URL of the video file 📁</span></div>
+      <div class="ar"><span class="an">controls</span><span>Shows play/pause/volume controls 🎛️</span></div>
+      <div class="ar"><span class="an">autoplay</span><span>Plays automatically when page loads ▶️</span></div>
+      <div class="ar"><span class="an">height</span><span>Sets the height of the video player 📐</span></div>
+      <div class="ar"><span class="an">width</span><span>Sets the width of the video player 📐</span></div>
+    </div>
+    <div class="cb2"><div class="cl">Video Example</div><pre><code>&lt;VIDEO controls src="D:\Seashore.MP4"
+       width="500" height="400" autoplay&gt;
+  Your browser does not support the video tag.
+&lt;/VIDEO&gt;</code></pre></div>
+    <div class="cpb">
+      <div class="ci aud"><h5>🎵 Audio Formats</h5><p>.mp3 &nbsp; .ogg &nbsp; .wav</p></div>
+      <div class="ci vid"><h5>🎬 Video Formats</h5><p>.mp4 &nbsp; .webm &nbsp; .ogg</p></div>
+    </div>
+    <div class="dy">💡 <strong>Did You Know?</strong> Before HTML5, you needed a browser plug-in to play audio and video. HTML5 made it built-in!</div>
+    <div class="cm">❌ <strong>Common Mistake:</strong> Always write fallback text between <code>&lt;AUDIO&gt;</code> and <code>&lt;/AUDIO&gt;</code> — it shows if the browser can't play the file.</div>
+    <div class="scb"><button class="bn" onclick="cag('pmd','pfr')">✅ Playing! Next: Frames →</button></div>
+  </div>
+</section>
+
+<!-- ======= FRAMES ======= -->
+<section id="pfr" class="pg">
+  <nav class="tn"><button onclick="gt('pmd')">← Back</button><span>Frames &amp; iFrames</span><button onclick="gt('pbd')">Next →</button></nav>
+  <div class="pc">
+    <div class="ch te"><span class="cn">6</span><div><h2>Frames &amp; iFrames 🖼️</h2><p>Display multiple web pages in one window!</p></div></div>
+    <div class="ab">🖼️ <strong>Real-life Analogy:</strong> Imagine a photo frame holder with 3 mini frames inside — each frame shows a different photo. An iFrame is exactly like that inside your browser!</div>
+    <div class="ce"><p>Frames allow you to show <strong>multiple HTML documents</strong> at the same time in one browser window. In HTML5, we use the <strong>&lt;iFrame&gt;</strong> (Inline Frame) tag.</p></div>
+    <h3 class="sh">🏗️ Visual: Inline Frames</h3>
+    <div class="bm">
+      <div class="bb">🌐 Main Document</div>
+      <div class="by">
+        <p style="text-align:center;font-size:12px;color:#666;margin-bottom:10px">This is the main document</p>
+        <div class="ibs">
+          <div class="ib bf">Web Page 1</div>
+          <div class="ib yf">Web Page 2</div>
+          <div class="ib pf">Web Page 3</div>
+        </div>
+      </div>
+    </div>
+    <h3 class="sh">🔧 iFrame Attributes</h3>
+    <div class="at">
+      <div class="ah"><span>Attribute</span><span>What it does</span></div>
+      <div class="ar"><span class="an">src</span><span>Path of the document to display inside the frame</span></div>
+      <div class="ar"><span class="an">height</span><span>Height of the frame in pixels</span></div>
+      <div class="ar"><span class="an">width</span><span>Width of the frame in pixels</span></div>
+    </div>
+    <div class="cb2"><div class="cl">iFrame Example</div><pre><code>&lt;iFRAME src="web_page_1.html"
+        height=200 width=200&gt;
+&lt;/iFRAME&gt;</code></pre></div>
+    <h3 class="sh">🎨 iFrame Border Styling</h3>
+    <div class="cb2"><div class="cl">CSS Border</div><pre><code>iframe { border: 10px dotted purple }</code></pre></div>
+    <div class="bel">
+      <h4>✨ Why Use Frames?</h4>
+      <div class="bei">🎯 Show different pages side by side</div>
+      <div class="bei">🔁 Navigation menu doesn't reload on every page</div>
+      <div class="bei">🎨 Include logos &amp; banners without repeating them</div>
+    </div>
+    <div class="et">📝 <strong>Exam Tip:</strong> In HTML5, frames are created using <code>&lt;iFrame&gt;</code>. An <strong>inline frame</strong> is a new HTML document embedded inside the current HTML document.</div>
+    <div class="scb"><button class="bn" onclick="cag('pfr','pbd')">✅ Framed! Let's Solve Questions →</button></div>
+  </div>
+</section>
+
+<!-- ======= BRAIN DEVELOPER ======= -->
+<section id="pbd" class="pg">
+  <nav class="tn"><button onclick="gt('pfr')">← Back</button><span>Brain Developer 🧠</span><button onclick="gt('pfc')">Next →</button></nav>
+  <div class="pc">
+    <div class="ch pu"><span class="cn">🧠</span><div><h2>Brain Developer</h2><p>All textbook questions — solved step by step!</p></div></div>
+
+    <h3 class="sh">A. Select the Correct Option</h3>
+    <div class="bq">
+      <div class="qn">Q1</div>
+      <div class="qb">
+        <p>The __________ attribute of &lt;A&gt; tag defines the document to which the link leads.</p>
+        <div class="ops">
+          <button class="op" onclick="pick(this,'w')">b) src</button>
+          <button class="op" onclick="pick(this,'w')">c) ref</button>
+          <button class="op" onclick="pick(this,'c')">a) href ✓</button>
+        </div>
+        <div class="ar2 hi2"><p>✅ <strong>Answer: href</strong></p><p>The <code>href</code> (Hypertext Reference) attribute tells the browser <em>where</em> to go when the link is clicked.</p></div>
+        <button class="rb" onclick="rev(this)">💡 Show Explanation</button>
+      </div>
+    </div>
+    <div class="bq">
+      <div class="qn">Q2</div>
+      <div class="qb">
+        <p>__________ URL points to a file within a website.</p>
+        <div class="ops">
+          <button class="op" onclick="pick(this,'w')">a) Absolute</button>
+          <button class="op" onclick="pick(this,'c')">b) Relative ✓</button>
+          <button class="op" onclick="pick(this,'w')">c) Internal</button>
+        </div>
+        <div class="ar2 hi2"><p>✅ <strong>Answer: Relative</strong></p><p>A <strong>Relative URL</strong> like <code>click.html</code> points to a file within the same website.</p></div>
+        <button class="rb" onclick="rev(this)">💡 Show Explanation</button>
+      </div>
+    </div>
+    <div class="bq">
+      <div class="qn">Q3</div>
+      <div class="qb">
+        <p>Which specifies the colour of a link when it is clicked?</p>
+        <div class="ops">
+          <button class="op" onclick="pick(this,'w')">a) Visited</button>
+          <button class="op" onclick="pick(this,'w')">b) Hover</button>
+          <button class="op" onclick="pick(this,'c')">c) Active ✓</button>
+        </div>
+        <div class="ar2 hi2"><p>✅ <strong>Answer: Active</strong></p><p><strong>A:active</strong> applies when a link is being clicked (activated).</p></div>
+        <button class="rb" onclick="rev(this)">💡 Show Explanation</button>
+      </div>
+    </div>
+    <div class="bq">
+      <div class="qn">Q4</div>
+      <div class="qb">
+        <p>.webm is one of the supported file formats for a/an __________ file.</p>
+        <div class="ops">
+          <button class="op" onclick="pick(this,'w')">a) Audio</button>
+          <button class="op" onclick="pick(this,'c')">b) Video ✓</button>
+          <button class="op" onclick="pick(this,'w')">c) Frame</button>
+        </div>
+        <div class="ar2 hi2"><p>✅ <strong>Answer: Video</strong></p><p>The <code>&lt;VIDEO&gt;</code> tag supports <strong>.mp4, .webm, and .ogg</strong> formats.</p></div>
+        <button class="rb" onclick="rev(this)">💡 Show Explanation</button>
+      </div>
+    </div>
+
+    <h3 class="sh">B. Fill in the Blanks</h3>
+    <div class="fbs">
+      <div class="fq"><span class="fnum">1.</span><input class="fi" type="text" placeholder="Type answer..." data-ans="hyperlinking" oninput="chkf(this)"/> can be defined as linking various web pages together.</div>
+      <div class="fq"><span class="fnum">2.</span>One part linked to another section on same page is called <input class="fi" type="text" placeholder="Type answer..." data-ans="internal" oninput="chkf(this)"/> linking.</div>
+      <div class="fq"><span class="fnum">3.</span>The <input class="fi" type="text" placeholder="Type answer..." data-ans="anchor" oninput="chkf(this)"/> tag is used to mark the text as a hyperlink.</div>
+      <div class="fq"><span class="fnum">4.</span><input class="fi" type="text" placeholder="Type answer..." data-ans="frames" oninput="chkf(this)"/> allow multiple HTML documents to be shown in one browser window.</div>
+    </div>
+
+    <h3 class="sh">C. Write T for True, F for False</h3>
+    <div class="tfs">
+      <div class="tfq">
+        <p>1. A link can be displayed as a button on a web page.</p>
+        <div class="tfbtns"><button class="tfb" onclick="chktf(this,'T','T')">T</button><button class="tfb" onclick="chktf(this,'F','T')">F</button></div>
+        <div class="tfr hi2">✅ <strong>TRUE</strong> — Use CSS styling (background-color, padding, text-decoration:none) to make links look like buttons.</div>
+      </div>
+      <div class="tfq">
+        <p>2. Any image can be used as a hyperlink to another document.</p>
+        <div class="tfbtns"><button class="tfb" onclick="chktf(this,'T','T')">T</button><button class="tfb" onclick="chktf(this,'F','T')">F</button></div>
+        <div class="tfr hi2">✅ <strong>TRUE</strong> — Wrap any &lt;IMG&gt; inside &lt;A href="..."&gt; to make it clickable!</div>
+      </div>
+      <div class="tfq">
+        <p>3. Frames can be created using the &lt;iFRAME&gt; tag.</p>
+        <div class="tfbtns"><button class="tfb" onclick="chktf(this,'T','T')">T</button><button class="tfb" onclick="chktf(this,'F','T')">F</button></div>
+        <div class="tfr hi2">✅ <strong>TRUE</strong> — In HTML5, the &lt;iFrame&gt; (Inline Frame) tag is used to create frames.</div>
+      </div>
+      <div class="tfq">
+        <p>4. A hypertext contains a link to information on the same or another web page.</p>
+        <div class="tfbtns"><button class="tfb" onclick="chktf(this,'T','T')">T</button><button class="tfb" onclick="chktf(this,'F','T')">F</button></div>
+        <div class="tfr hi2">✅ <strong>TRUE</strong> — Hypertext is clickable text that navigates to same or another page.</div>
+      </div>
+    </div>
+
+    <h3 class="sh">D. Answer the Following Questions</h3>
+    <div class="la"><div class="laq" onclick="tog(this)"><span>Q1. Why do you include hyperlinks in your web page?</span><span class="lat">▼</span></div><div class="laa hi2"><ul><li>Connect multiple pages of a website together</li><li>Allow users to navigate quickly to related information</li><li>Jump from one section to another on the same page</li><li>Link to other websites on the internet</li></ul><em class="pr">📖 Refer: Page 75</em></div></div>
+    <div class="la"><div class="laq" onclick="tog(this)"><span>Q2. Distinguish between internal and external linking.</span><span class="lat">▼</span></div><div class="laa hi2"><table class="dt"><tr><th>Internal Linking</th><th>External Linking</th></tr><tr><td>Links to another section on the SAME page</td><td>Links to a DIFFERENT web page or website</td></tr><tr><td>Used for navigation within one page</td><td>Used to open another site or page</td></tr><tr><td>Example: Jump to "Top" section</td><td>Example: Open Google.com</td></tr></table><em class="pr">📖 Refer: Page 75</em></div></div>
+    <div class="la"><div class="laq" onclick="tog(this)"><span>Q3. Describe the use of the anchor tag. Give syntax.</span><span class="lat">▼</span></div><div class="laa hi2"><p>The anchor <code>&lt;A&gt;</code> tag marks text or an image as a hyperlink. It is a container tag requiring <code>&lt;/A&gt;</code> to close.</p><p><strong>Syntax:</strong></p><code class="bcd">&lt;A href="value"&gt; CLICK HERE &lt;/A&gt;</code><em class="pr">📖 Refer: Page 75</em></div></div>
+    <div class="la"><div class="laq" onclick="tog(this)"><span>Q4. List the tags to include audio and video clips. Give syntax.</span><span class="lat">▼</span></div><div class="laa hi2"><p><strong>Audio Tag:</strong></p><code class="bcd">&lt;AUDIO controls src="music.mp3"&gt;
+  Browser does not support audio.
+&lt;/AUDIO&gt;</code><p><strong>Video Tag:</strong></p><code class="bcd">&lt;VIDEO controls src="video.mp4"
+       width="500" height="400"&gt;
+  Browser does not support video.
+&lt;/VIDEO&gt;</code><em class="pr">📖 Refer: Pages 79-80</em></div></div>
+    <div class="la"><div class="laq" onclick="tog(this)"><span>Q5. How are frames useful in creating web pages?</span><span class="lat">▼</span></div><div class="laa hi2"><ul><li>Allow multiple HTML documents in one browser window</li><li>Navigation menus don't need to reload on every page</li><li>Website elements like logos and banners stay fixed</li><li>Each frame section can be updated independently</li></ul><em class="pr">📖 Refer: Page 81</em></div></div>
+    <div class="la"><div class="laq" onclick="tog(this)"><span>Q6. Write a code to add national_song.mp3 to your web page.</span><span class="lat">▼</span></div><div class="laa hi2"><code class="bcd">&lt;!DOCTYPE HTML&gt;
+&lt;HTML&gt;&lt;HEAD&gt;
+  &lt;TITLE&gt;National Song&lt;/TITLE&gt;
+&lt;/HEAD&gt;&lt;BODY&gt;
+  &lt;AUDIO controls src="national_song.mp3"&gt;
+    Your browser does not support the audio tag.
+  &lt;/AUDIO&gt;
+&lt;/BODY&gt;&lt;/HTML&gt;</code><em class="pr">📖 Refer: Page 79</em></div></div>
+
+    <div class="scb"><button class="bn" onclick="cag('pbd','pfc')">✅ Solved! Next: Quick Revision →</button></div>
+  </div>
+</section>
+
+<!-- ======= FLASHCARDS ======= -->
+<section id="pfc" class="pg">
+  <nav class="tn"><button onclick="gt('pbd')">← Back</button><span>Quick Revision ⚡</span><button onclick="gt('pqz')">Next →</button></nav>
+  <div class="pc">
+    <div class="ch ye"><span class="cn">⚡</span><div><h2>Quick Revision</h2><p>Tap each card to reveal the answer!</p></div></div>
+    <div class="fcg">
+      <div class="fc" onclick="this.classList.toggle('flp')"><div class="fcf">What is hyperlinking? 🔗</div><div class="fcb">Connecting web pages together so users can navigate between them by clicking links.</div></div>
+      <div class="fc" onclick="this.classList.toggle('flp')"><div class="fcf">What is the Anchor Tag? ⚓</div><div class="fcb"><code>&lt;A href="url"&gt;text&lt;/A&gt;</code> — marks text/image as a clickable hyperlink.</div></div>
+      <div class="fc" onclick="this.classList.toggle('flp')"><div class="fcf">4 CSS Link States? 🎨</div><div class="fcb">A:link (unvisited), A:visited, A:hover (mouse over), A:active (being clicked)</div></div>
+      <div class="fc" onclick="this.classList.toggle('flp')"><div class="fcf">Audio tag formats? 🎵</div><div class="fcb">.mp3, .ogg, .wav — use &lt;AUDIO controls src="file.mp3"&gt;&lt;/AUDIO&gt;</div></div>
+      <div class="fc" onclick="this.classList.toggle('flp')"><div class="fcf">Video tag formats? 🎬</div><div class="fcb">.mp4, .webm, .ogg — use &lt;VIDEO controls src="file.mp4" width="500" height="400"&gt;&lt;/VIDEO&gt;</div></div>
+      <div class="fc" onclick="this.classList.toggle('flp')"><div class="fcf">What is iFrame? 🖼️</div><div class="fcb">Inline Frame — embeds another HTML doc inside current page.<code>&lt;iFRAME src="page.html"&gt;&lt;/iFRAME&gt;</code></div></div>
+      <div class="fc" onclick="this.classList.toggle('flp')"><div class="fcf">Internal vs External? 🔀</div><div class="fcb">Internal = same page, different section. External = different website entirely.</div></div>
+      <div class="fc" onclick="this.classList.toggle('flp')"><div class="fcf">What is Hypertext? 📝</div><div class="fcb">The clickable text inside an anchor tag — shown underlined and colored by the browser.</div></div>
+    </div>
+    <h3 class="sh" style="margin-top:2rem">🗺️ Mind Map</h3>
+    <div class="mm">
+      <div class="mc">Chapter 6<br>HTML Links &amp; Frames</div>
+      <div class="mb">
+        <div class="mbr pu"><div class="mn">🔗 Hyperlinks</div><div class="mbc"><span>Internal</span><span>External</span></div></div>
+        <div class="mbr bl"><div class="mn">⚓ Anchor &lt;A&gt;</div><div class="mbc"><span>href</span><span>Absolute URL</span><span>Relative URL</span><span>Email</span></div></div>
+        <div class="mbr gr"><div class="mn">🎨 CSS States</div><div class="mbc"><span>:link</span><span>:visited</span><span>:hover</span><span>:active</span></div></div>
+        <div class="mbr or"><div class="mn">🎵🎬 Media</div><div class="mbc"><span>&lt;AUDIO&gt;</span><span>&lt;VIDEO&gt;</span></div></div>
+        <div class="mbr pk"><div class="mn">🖼️ Frames</div><div class="mbc"><span>&lt;iFrame&gt;</span><span>src, h, w</span><span>Border</span></div></div>
+      </div>
+    </div>
+    <div class="scb"><button class="bn" onclick="cag('pfc','pqz')">✅ Revised! Take the Fun Quiz →</button></div>
+  </div>
+</section>
+
+<!-- ======= QUIZ ======= -->
+<section id="pqz" class="pg">
+  <nav class="tn"><button onclick="gt('pfc')">← Back</button><span>Fun Quiz 🎯</span><button onclick="gt('pte')">Next →</button></nav>
+  <div class="pc">
+    <div class="ch pu"><span class="cn">🎯</span><div><h2>Fun Quiz Time!</h2><p>Test yourself — earn stars! ⭐</p></div></div>
+    <div id="qsb"><span>Score: <strong id="qsc">0</strong>/10</span><span id="qpt">Question 1 of 10</span></div>
+    <div id="qqb"></div>
+    <div id="qfb" class="hi2"></div>
+    <button id="qnb" class="bn hi2" onclick="nxt()">Next Question →</button>
+    <div id="qrs" class="hi2">
+      <div class="rb2">
+        <h3 id="rtl"></h3><p id="rmg"></p>
+        <div id="rs"></div>
+        <button class="bs" onclick="rst()">🔄 Try Again</button>
+        <button class="bn" onclick="gt('pte')">Continue →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======= TEACHER ======= -->
+<section id="pte" class="pg">
+  <nav class="tn"><button onclick="gt('pqz')">← Back</button><span>Parent &amp; Teacher View 👩‍🏫</span><button onclick="gt('ph')">🏠 Home</button></nav>
+  <div class="pc">
+    <div class="ch bl"><span class="cn">👩‍🏫</span><div><h2>Parent &amp; Teacher View</h2><p>Chapter summary &amp; learning checklist</p></div></div>
+    <div class="ts"><h3>📋 Chapter Summary</h3><p>Chapter 6 covers HTML linking and multimedia. Students learn to connect web pages using anchor tags, style links with CSS pseudo-classes, embed audio/video files, and create inline frames using iFrame.</p></div>
+    <h3 class="sh">✅ Learning Checklist</h3>
+    <div class="cl2">
+      <label class="ci2"><input type="checkbox"> Use the anchor tag to link web pages</label>
+      <label class="ci2"><input type="checkbox"> Use CSS properties to create hyperlinks</label>
+      <label class="ci2"><input type="checkbox"> Insert audio clips using &lt;AUDIO&gt; tag</label>
+      <label class="ci2"><input type="checkbox"> Insert video clips using &lt;VIDEO&gt; tag</label>
+      <label class="ci2"><input type="checkbox"> Create inline frames using &lt;iFrame&gt;</label>
+      <label class="ci2"><input type="checkbox"> Distinguish internal vs external linking</label>
+      <label class="ci2"><input type="checkbox"> Apply border styles to iFrames</label>
+      <label class="ci2"><input type="checkbox"> Use images as hyperlinks</label>
+    </div>
+    <h3 class="sh">📊 Session Progress</h3>
+    <div class="pr2">
+      <div class="ri"><span class="rl">Concepts Covered</span><span class="rv" id="rpc">0/6</span></div>
+      <div class="ri"><span class="rl">Stars Earned</span><span class="rv" id="rps">0 ⭐</span></div>
+      <div class="ri"><span class="rl">Quiz Score</span><span class="rv" id="rpq">—</span></div>
+    </div>
+    <div class="scb"><button class="bs" onclick="gt('ph')">🏠 Back to Home</button></div>
+  </div>
+</section>
+
+<!-- ======= ALL JAVASCRIPT — inline, at bottom, no dependencies ======= -->
+<script>
+// ---- STATE ----
+var done = [], stars = 0, qScore = 0, qIdx = 0, qAnswered = false, TOTAL = 6;
+
+// ---- NAVIGATION ----
+function gt(id) {
+  var all = document.querySelectorAll('.pg');
+  for (var i = 0; i < all.length; i++) all[i].classList.remove('on');
+  var el = document.getElementById(id);
+  if (el) { el.classList.add('on'); window.scrollTo(0,0); }
+}
+
+function cag(from, to) {
+  if (done.indexOf(from) === -1) { done.push(from); addS(2); pop(); }
+  var pct = Math.round(done.length / TOTAL * 100);
+  var pf = document.getElementById('pf'); if (pf) pf.style.width = pct + '%';
+  var pl = document.getElementById('pl'); if (pl) pl.textContent = pct + '% Complete';
+  var rpc = document.getElementById('rpc'); if (rpc) rpc.textContent = done.length + '/' + TOTAL;
+  gt(to);
+}
+
+// ---- STARS ----
+function addS(n) {
+  stars += n;
+  var sc2 = document.getElementById('sc2'); if (sc2) sc2.textContent = stars;
+  var rps = document.getElementById('rps'); if (rps) rps.textContent = stars + ' ⭐';
+  var sd = document.getElementById('sd');
+  if (sd) {
+    sd.style.transform = 'scale(1.4)';
+    sd.style.background = 'linear-gradient(135deg,#ff6b6b,#ffd700)';
+    setTimeout(function(){ sd.style.transform='scale(1)'; sd.style.background='linear-gradient(135deg,#ffd700,#ffb700)'; }, 400);
+  }
+}
+
+// ---- MOTIVATIONAL POPUP ----
+var msgs = ['🎉 Awesome! Keep going!','⭐ Superstar!','🚀 Rocketing through!','💪 Crushing it!','🌟 Amazing work!','🔥 On fire!'];
+function pop() {
+  var d = document.createElement('div');
+  d.textContent = msgs[Math.floor(Math.random()*msgs.length)];
+  d.style.cssText = 'position:fixed;top:60px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff;padding:12px 28px;border-radius:50px;font-family:Nunito,sans-serif;font-weight:800;font-size:16px;z-index:9998;box-shadow:0 4px 20px rgba(0,0,0,.2);transition:opacity .5s';
+  document.body.appendChild(d);
+  setTimeout(function(){ d.style.opacity='0'; },1800);
+  setTimeout(function(){ if(d.parentNode) d.parentNode.removeChild(d); },2300);
+}
+
+// ---- ANCHOR DEMO ----
+function upd() {
+  var t = document.getElementById('lti'); var u = document.getElementById('lui'); var c = document.getElementById('adc');
+  if (t && u && c) c.textContent = '<A href="' + (u.value||'#') + '">' + (t.value||'Click Me!') + '</A>';
+}
+
+// ---- MCQ OPTIONS ----
+function pick(btn, v) {
+  btn.classList.add(v === 'c' ? 'ok' : 'no');
+  if (v === 'c') addS(1);
+}
+
+// ---- REVEAL ANSWERS ----
+function rev(btn) {
+  var box = btn.previousElementSibling;
+  if (!box) return;
+  if (box.classList.contains('hi2')) {
+    box.classList.remove('hi2');
+    btn.textContent = '✅ Got it!';
+    btn.style.cssText = 'background:#d1fae5;border-color:#059669;color:#059669;border:2px solid #059669;padding:8px 20px;border-radius:50px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all .3s';
+  } else {
+    box.classList.add('hi2');
+    btn.textContent = '💡 Show Explanation';
+    btn.style.cssText = '';
+  }
+}
+
+// ---- FILL BLANKS ----
+function chkf(inp) {
+  var a = (inp.getAttribute('data-ans') || '').toLowerCase();
+  var v = inp.value.trim().toLowerCase();
+  inp.classList.remove('ok','no');
+  if (v === a) { inp.classList.add('ok'); addS(1); }
+  else if (v.length >= a.length - 1 && v.length > 0) inp.classList.add('no');
+}
+
+// ---- TRUE/FALSE ----
+function chktf(btn, chosen, correct) {
+  var tfq = btn.closest('.tfq');
+  if (!tfq) return;
+  var btns = tfq.querySelectorAll('.tfb');
+  for (var i = 0; i < btns.length; i++) { btns[i].disabled = true; btns[i].style.opacity = '0.6'; }
+  if (chosen === correct) { btn.classList.add('ok'); addS(1); }
+  else {
+    btn.classList.add('no');
+    for (var i = 0; i < btns.length; i++) { if (btns[i].textContent === correct) btns[i].classList.add('ok'); }
+  }
+  var tfr = tfq.querySelector('.tfr');
+  if (tfr) tfr.classList.remove('hi2');
+}
+
+// ---- LONG ANSWER TOGGLE ----
+function tog(hdr) {
+  var ans = hdr.nextElementSibling; var lat = hdr.querySelector('.lat');
+  if (!ans) return;
+  if (ans.classList.contains('hi2')) { ans.classList.remove('hi2'); if (lat) lat.style.transform = 'rotate(180deg)'; }
+  else { ans.classList.add('hi2'); if (lat) lat.style.transform = 'rotate(0)'; }
+}
+
+// ---- QUIZ ----
+var qs = [
+  {q:"What is the HTML tag used to create a hyperlink?",o:["&lt;LINK&gt;","&lt;A&gt;","&lt;HREF&gt;","&lt;URL&gt;"],a:1,e:"The Anchor tag &lt;A&gt; is used to create hyperlinks. Syntax: &lt;A href='url'&gt;Text&lt;/A&gt;"},
+  {q:"Which CSS pseudo-class applies when a user moves the mouse over a link?",o:["A:link","A:visited","A:hover","A:active"],a:2,e:"A:hover applies styles when the mouse pointer is hovering over the link."},
+  {q:"What attribute of the &lt;A&gt; tag defines the destination URL?",o:["src","link","href","url"],a:2,e:"The 'href' (Hypertext Reference) attribute defines where the link goes."},
+  {q:"Which is a correct audio file format for the &lt;AUDIO&gt; tag?",o:[".mp4",".avi",".mp3",".wmv"],a:2,e:"The &lt;AUDIO&gt; tag supports .mp3, .ogg, and .wav formats."},
+  {q:"What tag is used to embed another HTML page inside a web page?",o:["&lt;FRAME&gt;","&lt;EMBED&gt;","&lt;iFrame&gt;","&lt;INCLUDE&gt;"],a:2,e:"The &lt;iFrame&gt; (Inline Frame) tag embeds another HTML document inside the current page."},
+  {q:"When a link connects to another section on THE SAME PAGE, it is called:",o:["External linking","Absolute linking","Internal linking","Anchor linking"],a:2,e:"Internal linking connects to a different section on the SAME page."},
+  {q:"Which attribute of &lt;iFrame&gt; specifies the document to display?",o:["href","link","url","src"],a:3,e:"The 'src' attribute specifies the path of the document shown in the inline frame."},
+  {q:"Which CSS link state applies to a link the user has ALREADY VISITED?",o:["A:link","A:hover","A:visited","A:active"],a:2,e:"A:visited applies styles to links that the user has previously clicked."},
+  {q:"Which video format is supported by the HTML &lt;VIDEO&gt; tag?",o:[".avi",".wmv",".flv",".mp4"],a:3,e:"The &lt;VIDEO&gt; tag supports .mp4, .webm, and .ogg formats."},
+  {q:"What does 'autoplay' do in &lt;AUDIO&gt; and &lt;VIDEO&gt; tags?",o:["Shows controls","Plays automatically when page loads","Loops the file","Pauses the file"],a:1,e:"'autoplay' makes audio/video start playing automatically when the web page loads."}
+];
+
+function rndQ() {
+  var qqb = document.getElementById('qqb'), qfb = document.getElementById('qfb'), qnb = document.getElementById('qnb'), qrs = document.getElementById('qrs');
+  if (!qqb) return;
+  if (qqb) qqb.classList.remove('hi2');
+  if (qfb) qfb.classList.add('hi2');
+  if (qnb) qnb.classList.add('hi2');
+  if (qrs) qrs.classList.add('hi2');
+  qAnswered = false;
+  var qpt = document.getElementById('qpt'); if (qpt) qpt.textContent = 'Question ' + (qIdx+1) + ' of ' + qs.length;
+  var q = qs[qIdx];
+  var h = '<div class="qt">Q'+(qIdx+1)+'. '+q.q+'</div><div class="qos">';
+  for (var i = 0; i < q.o.length; i++) h += '<button class="qo" onclick="ans('+i+')">'+String.fromCharCode(65+i)+'. '+q.o[i]+'</button>';
+  h += '</div>';
+  qqb.innerHTML = h;
+}
+
+function ans(ch) {
+  if (qAnswered) return;
+  qAnswered = true;
+  var q = qs[qIdx];
+  var opts = document.querySelectorAll('.qo');
+  for (var i = 0; i < opts.length; i++) {
+    opts[i].disabled = true;
+    if (i === q.a) opts[i].classList.add('ok');
+    else if (i === ch) opts[i].classList.add('no');
+  }
+  var qfb = document.getElementById('qfb');
+  if (qfb) {
+    qfb.classList.remove('hi2');
+    if (ch === q.a) {
+      qScore++; var qsc = document.getElementById('qsc'); if(qsc) qsc.textContent = qScore;
+      qfb.innerHTML = '✅ <strong>Correct!</strong> '+q.e;
+      qfb.style.borderLeft = '4px solid #059669'; qfb.style.background = '#f0fdf4';
+      addS(1);
+    } else {
+      qfb.innerHTML = '❌ <strong>Not quite!</strong> '+q.e;
+      qfb.style.borderLeft = '4px solid #dc2626'; qfb.style.background = '#fef2f2';
+    }
+  }
+  var qnb = document.getElementById('qnb');
+  if (qnb) { qnb.classList.remove('hi2'); qnb.textContent = qIdx === qs.length-1 ? '🎉 See Results!' : 'Next Question →'; }
+}
+
+function nxt() {
+  qIdx++;
+  if (qIdx >= qs.length) showR();
+  else rndQ();
+}
+
+function showR() {
+  var qqb=document.getElementById('qqb'),qfb=document.getElementById('qfb'),qnb=document.getElementById('qnb'),qrs=document.getElementById('qrs');
+  if(qqb) qqb.classList.add('hi2'); if(qfb) qfb.classList.add('hi2'); if(qnb) qnb.classList.add('hi2'); if(qrs) qrs.classList.remove('hi2');
+  var pct = Math.round(qScore/qs.length*100);
+  var tl,mg,st;
+  if(pct>=90){tl='🏆 Outstanding!';mg='You scored '+qScore+'/'+qs.length+'! HTML champion!';st='⭐⭐⭐⭐⭐';addS(10);conf();}
+  else if(pct>=70){tl='🌟 Great Job!';mg='You scored '+qScore+'/'+qs.length+'! Almost perfect!';st='⭐⭐⭐⭐';addS(6);conf();}
+  else if(pct>=50){tl='👍 Good Effort!';mg='You scored '+qScore+'/'+qs.length+'. Review and try again!';st='⭐⭐⭐';addS(3);}
+  else{tl='💪 Keep Going!';mg='You scored '+qScore+'/'+qs.length+'. You\'ve got this!';st='⭐';addS(1);}
+  var rtl=document.getElementById('rtl'),rmg=document.getElementById('rmg'),rs=document.getElementById('rs'),rpq=document.getElementById('rpq');
+  if(rtl) rtl.textContent=tl; if(rmg) rmg.textContent=mg; if(rs) rs.textContent=st;
+  if(rpq) rpq.textContent=qScore+'/'+qs.length+' ('+pct+'%)';
+}
+
+function rst() {
+  qScore=0; qIdx=0; qAnswered=false;
+  var qsc=document.getElementById('qsc'); if(qsc) qsc.textContent='0';
+  var qrs=document.getElementById('qrs'); if(qrs) qrs.classList.add('hi2');
+  rndQ();
+}
+
+// ---- CONFETTI ----
+function conf() {
+  var cv=document.getElementById('cc'); if(!cv) return;
+  var ctx=cv.getContext('2d');
+  cv.width=window.innerWidth; cv.height=window.innerHeight;
+  var cls=['#7c3aed','#ec4899','#f59e0b','#10b981','#3b82f6','#f97316'], ps=[];
+  for(var i=0;i<140;i++) ps.push({x:Math.random()*cv.width,y:-20,r:Math.random()*8+4,d:Math.random()*3+1,col:cls[Math.floor(Math.random()*cls.length)],ta:0,tai:Math.random()*.07+.05,s:Math.random()>.5?'c':'r'});
+  var fr=0;
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    for(var i=0;i<ps.length;i++){
+      var p=ps[i]; ctx.fillStyle=p.col; ctx.beginPath();
+      if(p.s==='c'){ctx.arc(p.x,p.y,p.r,0,Math.PI*2);}else{ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.ta);ctx.fillRect(-p.r,-p.r*2,p.r*2,p.r*4);ctx.restore();}
+      ctx.fill(); p.y+=p.d; p.x+=Math.sin(fr*.01+p.ta)*2; p.ta+=p.tai;
+    }
+    fr++; if(fr<200) requestAnimationFrame(draw); else ctx.clearRect(0,0,cv.width,cv.height);
+  }
+  draw();
+}
+
+// ---- INIT: runs immediately since script is at bottom of body ----
+rndQ();
+</script>
+</body>
+</html>
