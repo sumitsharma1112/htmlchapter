@@ -197,7 +197,12 @@ export function openPrompter(o: PrompterOptions): void {
       if (st === 'finished' && rec.recording) window.setTimeout(() => { if (tp.state === 'finished') void stopRecording(); }, 1200);
       if (st === 'idle' && rec.recording) void stopRecording();
     },
-    onCountdown: (n) => { count.textContent = n > 0 ? String(n) : ''; },
+    onCountdown: (n) => {
+      count.textContent = n > 0 ? String(n) : '';
+      count.classList.remove('pop');
+      void count.offsetWidth; // retrigger the pop animation each second
+      if (n > 0) count.classList.add('pop');
+    },
     onProgress: ({ progress: p, elapsed, remaining }) => {
       (progress.firstElementChild as HTMLElement).style.transform = `scaleX(${p})`;
       const pc = String(Math.round(p * 100));

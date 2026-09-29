@@ -14,6 +14,7 @@ import { cueChoices, renderCueBoard } from './cueboard';
 import { clear, h, toast } from './dom';
 import { copyText, downloadText, pickTextFile } from './files';
 import { openPrompter } from './prompterView';
+import { renderHero } from './hero';
 import { ic, icon } from './icons';
 import type { IconName } from './icons';
 
@@ -27,6 +28,9 @@ export function startApp(root: HTMLElement): void {
   let view: View = 'scripts';
   let currentId: string | null = null;
   let saveTimer = 0;
+  const HERO_KEY = 'reelprompt.hero.hidden';
+  const heroHidden = () => { try { return kv.getItem(HERO_KEY) === '1'; } catch { return false; } };
+  const setHero = (hidden: boolean) => { try { kv.setItem(HERO_KEY, hidden ? '1' : '0'); } catch { /* ignore */ } render(); };
 
   if (!store.list().length) currentId = store.create('Voice modulation demo', DEMO_SCRIPT).id;
   else {
@@ -79,14 +83,18 @@ export function startApp(root: HTMLElement): void {
     else if (view === 'format') main.append(formatView());
     else if (view === 'prompt') main.append(promptView());
     else main.append(settingsView());
+    main.classList.remove('view-enter');
+    void main.offsetWidth; // restart the entrance animation
+    main.classList.add('view-enter');
   }
 
   /* ---------------- Scripts ---------------- */
   function scriptsView(): HTMLElement {
     const sc = current();
     const list = h('ul', { class: 'script-list', 'aria-label': 'Saved scripts' });
+    let li = 0;
     for (const s of store.list()) {
-      list.append(h('li', {},
+      list.append(h('li', { style: `--i:${li++}` },
         h('button', { class: 'script-item', type: 'button', 'aria-current': String(s.id === currentId), on: { click: () => { currentId = s.id; saveCurrentId(kv, s.id); render(); } } },
           h('strong', {}, s.name), h('small', {}, `${parseScript(s.content, settings).wordCount} words`))));
     }
@@ -101,7 +109,9 @@ export function startApp(root: HTMLElement): void {
       list,
       h('button', { class: 'btn quiet', type: 'button', on: { click: () => { const n = store.create('Voice modulation demo', DEMO_SCRIPT); currentId = n.id; saveCurrentId(kv, n.id); render(); } } }, 'Add demo script'));
 
-    if (!sc) return h('div', { class: 'layout' }, side, h('section', { class: 'panel' }, h('p', {}, 'No script selected. Create one with “＋ New”.')));
+    const hero = heroHidden() ? null : renderHero({ onStart: play, onLearn: () => go('prompt'), onHide: () => setHero(true) });
+    if (heroHidden()) side.append(h('button', { class: 'btn quiet sm', type: 'button', on: { click: () => setHero(false) } }, 'Show intro'));
+    if (!sc) return h('div', {}, hero, h('div', { class: 'layout' }, side, h('section', { class: 'panel' }, h('p', {}, 'No script selected. Create one with “New”.'))));
 
     const name = h('input', { class: 'name', value: sc.name, 'aria-label': 'Script name', on: { change: (e) => { store.rename(sc.id, (e.target as HTMLInputElement).value); render(); } } });
     const stats = h('p', { class: 'muted', 'aria-live': 'polite' });
@@ -165,11 +175,11 @@ export function startApp(root: HTMLElement): void {
     );
 
     refresh();
-    return h('div', { class: 'layout' }, side,
+    return h('div', {}, hero, h('div', { class: 'layout' }, side,
       h('section', { class: 'panel' }, name, actions, toolbar, stats,
         h('div', { class: 'split' },
           h('div', {}, h('h2', {}, 'Script'), ta),
-          h('div', {}, h('h2', {}, 'Cue preview'), h('p', { class: 'muted small' }, 'Spoken lines with their cues. Edit pauses, remove cues or add new ones — no marker syntax needed.'), board))));
+          h('div', {}, h('h2', {}, 'Cue preview'), h('p', { class: 'muted small' }, 'Spoken lines with their cues. Edit pauses, remove cues or add new ones — no marker syntax needed.'), board)))));
   }
 
   /* ---------------- Format for Performance ---------------- */
