@@ -14,6 +14,8 @@ import { cueChoices, renderCueBoard } from './cueboard';
 import { clear, h, toast } from './dom';
 import { copyText, downloadText, pickTextFile } from './files';
 import { openPrompter } from './prompterView';
+import { ic, icon } from './icons';
+import type { IconName } from './icons';
 
 type View = 'scripts' | 'format' | 'prompt' | 'settings';
 
@@ -54,9 +56,9 @@ export function startApp(root: HTMLElement): void {
 
   const header = h('header', { class: 'top' },
     h('a', { class: 'brand', href: '#', 'aria-label': 'ReelPrompt home', on: { click: (e) => { e.preventDefault(); go('scripts'); } } },
-      h('span', { class: 'logo', 'aria-hidden': 'true' }, '▶'), 'ReelPrompt'),
+      h('span', { class: 'logo', 'aria-hidden': 'true' }, icon('play', 14)), 'ReelPrompt'),
     nav,
-    h('button', { class: 'btn primary', type: 'button', on: { click: play } }, '▶ Teleprompter'),
+    h('button', { class: 'btn primary', type: 'button', on: { click: play } }, ...ic('play', 'Teleprompter')),
   );
   root.append(h('a', { class: 'skip', href: '#main' }, 'Skip to content'), header, main);
 
@@ -64,9 +66,9 @@ export function startApp(root: HTMLElement): void {
 
   function renderNav() {
     clear(nav);
-    const tabs: [View, string][] = [['scripts', 'Scripts'], ['format', '✨ Format for Performance'], ['prompt', 'AI Script Prompt'], ['settings', 'Settings']];
-    for (const [v, label] of tabs) {
-      nav.append(h('button', { class: 'tab', type: 'button', 'aria-current': v === view ? 'page' : 'false', on: { click: () => go(v) } }, label));
+    const tabs: [View, string, IconName][] = [['scripts', 'Scripts', 'file'], ['format', 'Format', 'sparkles'], ['prompt', 'AI Prompt', 'bot'], ['settings', 'Settings', 'sliders']];
+    for (const [v, label, ico] of tabs) {
+      nav.append(h('button', { class: 'tab', type: 'button', 'aria-current': v === view ? 'page' : 'false', on: { click: () => go(v) } }, ...ic(ico, label, 16)));
     }
   }
 
@@ -90,12 +92,12 @@ export function startApp(root: HTMLElement): void {
     }
     const side = h('aside', { class: 'side' },
       h('div', { class: 'row' },
-        h('button', { class: 'btn primary', type: 'button', on: { click: () => { const n = store.create('New script', ''); currentId = n.id; saveCurrentId(kv, n.id); render(); } } }, '＋ New'),
+        h('button', { class: 'btn primary', type: 'button', on: { click: () => { const n = store.create('New script', ''); currentId = n.id; saveCurrentId(kv, n.id); render(); } } }, ...ic('plus', 'New')),
         h('button', { class: 'btn', type: 'button', on: { click: async () => {
           const f = await pickTextFile();
           if (!f) return;
           const n = store.create(f.name, f.text); currentId = n.id; saveCurrentId(kv, n.id); render(); toast('Imported ' + f.name);
-        } } }, '⬆ Import .txt')),
+        } } }, ...ic('upload', 'Import .txt'))),
       list,
       h('button', { class: 'btn quiet', type: 'button', on: { click: () => { const n = store.create('Voice modulation demo', DEMO_SCRIPT); currentId = n.id; saveCurrentId(kv, n.id); render(); } } }, 'Add demo script'));
 
@@ -147,19 +149,19 @@ export function startApp(root: HTMLElement): void {
     };
     const toolbar = h('div', { class: 'toolbar', role: 'toolbar', 'aria-label': 'Add performance cue' }, h('strong', {}, 'Add cue:'),
       ...cueChoices(settings).map((c) => h('button', { class: `btn sm cue-btn cue-${c.cue.kind}`, type: 'button', title: `Insert ${cueToMarker(c.cue)} after the current line`,
-        on: { click: () => insertCue(cueToMarker(c.cue)) } }, `${CUE_META[c.cue.kind].icon} ${c.label}`)));
+        on: { click: () => insertCue(cueToMarker(c.cue)) } }, h('i', { class: 'dot', 'aria-hidden': 'true' }), c.label)));
 
     const actions = h('div', { class: 'row wrap' },
-      h('button', { class: 'btn', type: 'button', on: { click: () => { const d = store.duplicate(sc.id); if (d) { currentId = d.id; saveCurrentId(kv, d.id); render(); toast('Duplicated'); } } } }, 'Duplicate'),
+      h('button', { class: 'btn', type: 'button', on: { click: () => { const d = store.duplicate(sc.id); if (d) { currentId = d.id; saveCurrentId(kv, d.id); render(); toast('Duplicated'); } } } }, ...ic('copy', 'Duplicate')),
       h('button', { class: 'btn danger', type: 'button', on: { click: () => {
         if (!confirm(`Delete “${sc.name}”? This cannot be undone.`)) return;
         store.remove(sc.id); currentId = store.list()[0]?.id ?? null; render();
-      } } }, 'Delete'),
+      } } }, ...ic('trash', 'Delete')),
       h('span', { class: 'spacer' }),
-      h('button', { class: 'btn', type: 'button', on: { click: () => downloadText(`${safeFilename(sc.name)}-clean.txt`, exportClean(ta.value, settings)) } }, '⬇ Clean .txt'),
-      h('button', { class: 'btn', type: 'button', on: { click: () => downloadText(`${safeFilename(sc.name)}.reelprompt.txt`, exportReelPrompt(ta.value, settings)) } }, '⬇ ReelPrompt .txt'),
-      h('button', { class: 'btn', type: 'button', on: { click: () => copyText(exportClean(ta.value, settings), 'Clean script copied') } }, 'Copy clean'),
-      h('button', { class: 'btn', type: 'button', title: 'Copies the AI prompt plus your script, asking an AI to add performance markers', on: { click: () => copyText(buildAiRequest(ta.value, aiPrompt, settings), 'AI request copied — paste it into ChatGPT, Claude, Gemini or Grok') } }, 'Copy for AI'),
+      h('button', { class: 'btn', type: 'button', on: { click: () => downloadText(`${safeFilename(sc.name)}-clean.txt`, exportClean(ta.value, settings)) } }, ...ic('download', 'Clean .txt')),
+      h('button', { class: 'btn', type: 'button', on: { click: () => downloadText(`${safeFilename(sc.name)}.reelprompt.txt`, exportReelPrompt(ta.value, settings)) } }, ...ic('download', 'ReelPrompt .txt')),
+      h('button', { class: 'btn', type: 'button', on: { click: () => copyText(exportClean(ta.value, settings), 'Clean script copied') } }, ...ic('copy', 'Copy clean')),
+      h('button', { class: 'btn', type: 'button', title: 'Copies the AI prompt plus your script, asking an AI to add performance markers', on: { click: () => copyText(buildAiRequest(ta.value, aiPrompt, settings), 'AI request copied — paste it into ChatGPT, Claude, Gemini or Grok') } }, ...ic('bot', 'Copy for AI')),
     );
 
     refresh();
@@ -210,10 +212,10 @@ export function startApp(root: HTMLElement): void {
     };
     draw();
     return h('section', { class: 'panel wide' },
-      h('h1', {}, '✨ Format for Performance'),
+      h('h1', { class: 'h-icon' }, icon('sparkles', 22), 'Format for Performance'),
       h('p', { class: 'muted' }, 'Paste a plain script. ReelPrompt analyzes it on your device — no AI service or API key — and suggests where to pause, slow down or add energy. You decide what to keep.'),
       h('div', { class: 'row wrap' },
-        h('button', { class: 'btn primary', type: 'button', on: { click: analyze } }, 'Analyze script'),
+        h('button', { class: 'btn primary', type: 'button', on: { click: analyze } }, ...ic('sparkles', 'Analyze script')),
         h('button', { class: 'btn', type: 'button', disabled: !current(), on: { click: () => { ta.value = current()?.content ?? ''; analyze(); } } }, 'Use current script')),
       h('div', { class: 'split' }, h('div', {}, h('h2', {}, 'Plain script'), ta), h('div', {}, h('h2', {}, 'Structured editor'), out)));
   }
@@ -230,7 +232,7 @@ export function startApp(root: HTMLElement): void {
         h('li', {}, 'Fill in the “MY REQUEST” section (topic, tone, duration, audience).'),
         h('li', {}, 'Paste the AI’s answer into a new ReelPrompt script — the markers are parsed automatically.')),
       h('div', { class: 'row wrap' },
-        h('button', { class: 'btn primary', type: 'button', on: { click: () => copyText(ta.value, 'Prompt copied') } }, 'COPY PROMPT'),
+        h('button', { class: 'btn primary', type: 'button', on: { click: () => copyText(ta.value, 'Prompt copied') } }, ...ic('copy', 'COPY PROMPT')),
         h('button', { class: 'btn', type: 'button', on: { click: () => { ta.value = DEFAULT_AI_PROMPT; aiPrompt = ta.value; savePrompt(kv, aiPrompt); toast('Prompt reset to default'); } } }, 'Reset to default'),
         h('span', { class: 'muted small' }, 'The prompt is editable and saved on this device.')),
       ta);
@@ -256,7 +258,7 @@ export function startApp(root: HTMLElement): void {
       h('option', { value: 'off', selected: settings.recordMode === 'off' }, 'Off'), h('option', { value: 'video', selected: settings.recordMode === 'video' }, 'Selfie video + audio'), h('option', { value: 'audio', selected: settings.recordMode === 'audio' }, 'Audio only'));
     const facing = h('select', { 'aria-label': 'Camera', on: { change: () => updateSettings({ facing: facing.value as Settings['facing'] }) } },
       h('option', { value: 'user', selected: settings.facing === 'user' }, 'Front (selfie)'), h('option', { value: 'environment', selected: settings.facing === 'environment' }, 'Back'));
-    const preview = h('div', { class: 'cue-preview' }, ...CUE_ORDER.map((k) => h('span', { class: `chip cue-${k}` }, `${CUE_META[k].icon} ${CUE_META[k].label}`)));
+    const preview = h('div', { class: 'cue-preview' }, ...CUE_ORDER.map((k) => h('span', { class: `chip cue-${k}` }, h('i', { class: 'dot', 'aria-hidden': 'true' }), CUE_META[k].label)));
 
     return h('section', { class: 'panel wide settings' },
       h('h1', {}, 'Settings'),

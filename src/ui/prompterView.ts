@@ -6,6 +6,7 @@ import type { PrompterState } from '../teleprompter/engine';
 import { Recorder, describeMediaError } from '../recording/recorder';
 import type { RecordMode } from '../recording/recorder';
 import { h, toast } from './dom';
+import { ic, icon, setBtn } from './icons';
 import { showRecordingResult } from './recordingResult';
 
 export interface PrompterOptions {
@@ -25,7 +26,7 @@ export function openPrompter(o: PrompterOptions): void {
   const progress = h('div', { class: 'tp-progress', role: 'progressbar', 'aria-label': 'Progress', 'aria-valuemin': '0', 'aria-valuemax': '100' }, h('i'));
   const count = h('div', { class: 'tp-count', 'aria-live': 'assertive' });
   const times = h('span', { class: 'tp-times' }, '0:00 · −0:00');
-  const playBtn = h('button', { class: 'btn primary', type: 'button', 'aria-label': 'Play' }, '▶ Play');
+  const playBtn = h('button', { class: 'btn primary', type: 'button', 'aria-label': 'Play' }, ...ic('play', 'Play'));
   let tp: Teleprompter;
 
   const set = (patch: Partial<Settings>) => {
@@ -53,14 +54,14 @@ export function openPrompter(o: PrompterOptions): void {
   ];
   const syncTweaks = () => sliders.forEach((t) => { t.input.value = String(s[t.key]); t.out.textContent = String(Math.round(s[t.key] * 100) / 100); });
 
-  const mirrorBtn = h('button', { class: 'btn', type: 'button', 'aria-pressed': String(s.mirror), on: { click: () => { set({ mirror: !s.mirror }); mirrorBtn.setAttribute('aria-pressed', String(s.mirror)); } } }, '⇋ Mirror');
-  const themeBtn = h('button', { class: 'btn', type: 'button', on: { click: () => set({ theme: s.theme === 'dark' ? 'light' : 'dark' }) } }, '◐ Theme');
-  const fsBtn = h('button', { class: 'btn', type: 'button', on: { click: () => toggleFs() } }, '⛶ Full screen');
+  const mirrorBtn = h('button', { class: 'btn', type: 'button', 'aria-pressed': String(s.mirror), on: { click: () => { set({ mirror: !s.mirror }); mirrorBtn.setAttribute('aria-pressed', String(s.mirror)); } } }, ...ic('mirror', 'Mirror'));
+  const themeBtn = h('button', { class: 'btn', type: 'button', on: { click: () => set({ theme: s.theme === 'dark' ? 'light' : 'dark' }) } }, ...ic('contrast', 'Theme'));
+  const fsBtn = h('button', { class: 'btn', type: 'button', on: { click: () => toggleFs() } }, ...ic('maximize', 'Full screen'));
   const tweaks = h('div', { class: 'tweaks', hidden: true, id: 'tweaks' }, ...sliders.map((t) => t.row), h('div', { class: 'tweak-btns' }, mirrorBtn, themeBtn, fsBtn));
   const tweakToggle = h('button', { class: 'btn', type: 'button', 'aria-controls': 'tweaks', 'aria-expanded': 'false', 'aria-label': 'Display settings', on: { click: () => {
     tweaks.hidden = !tweaks.hidden;
     tweakToggle.setAttribute('aria-expanded', String(!tweaks.hidden));
-  } } }, 'Aa');
+  } } }, ...ic('type', 'Aa'));
 
   const exit = () => {
     exited = true;
@@ -84,22 +85,22 @@ export function openPrompter(o: PrompterOptions): void {
   camVideo.muted = true;
   const badge = h('div', { class: 'rec-badge', hidden: true, 'aria-live': 'polite' });
   const recBtn = h('button', { class: 'btn', type: 'button', on: { click: () => void cycleMode() } });
-  const flipBtn = h('button', { class: 'btn', type: 'button', 'aria-label': 'Switch camera', on: { click: () => void flipCamera() } }, '⟲ Flip');
-  const stopBtn = h('button', { class: 'btn danger-solid', type: 'button', hidden: true, on: { click: () => { tp.pause(); void stopRecording(); } } }, '■ Stop rec');
+  const flipBtn = h('button', { class: 'btn', type: 'button', 'aria-label': 'Switch camera', on: { click: () => void flipCamera() } }, ...ic('flip', 'Flip'));
+  const stopBtn = h('button', { class: 'btn danger-solid', type: 'button', hidden: true, on: { click: () => { tp.pause(); void stopRecording(); } } }, ...ic('stop', 'Stop rec'));
   let armed = false;
   let takeActive = false;
   let exited = false;
   let busy = false;
   let badgeTimer = 0;
-  const MODE_LABEL: Record<RecordMode, string> = { off: '● Rec: Off', video: '🎥 Video', audio: '🎙 Audio' };
+  const MODE_LABEL: Record<RecordMode, [Parameters<typeof icon>[0], string]> = { off: ['rec', 'Rec: Off'], video: ['video', 'Video'], audio: ['mic', 'Audio'] };
 
   function updateBadge() {
-    if (rec.recording) { badge.hidden = false; badge.classList.add('live'); badge.textContent = `● REC ${formatTime(rec.seconds)}`; }
-    else if (armed) { badge.hidden = false; badge.classList.remove('live'); badge.textContent = s.recordMode === 'video' ? '🎥 Camera ready' : '🎙 Mic ready'; }
+    if (rec.recording) { badge.hidden = false; badge.classList.add('live'); badge.textContent = `REC ${formatTime(rec.seconds)}`; }
+    else if (armed) { badge.hidden = false; badge.classList.remove('live'); badge.textContent = s.recordMode === 'video' ? 'Camera ready' : 'Mic ready'; }
     else badge.hidden = true;
   }
   function syncRecUi() {
-    recBtn.textContent = MODE_LABEL[s.recordMode];
+    setBtn(recBtn, MODE_LABEL[s.recordMode][0], MODE_LABEL[s.recordMode][1]);
     recBtn.setAttribute('aria-label', `Recording mode: ${s.recordMode}. Activate to change.`);
     recBtn.disabled = rec.recording;
     flipBtn.hidden = s.recordMode !== 'video';
@@ -184,11 +185,11 @@ export function openPrompter(o: PrompterOptions): void {
     } finally { busy = false; }
   }
 
-  const labels: Record<PrompterState, string> = { idle: '▶ Play', countdown: '✕ Cancel', playing: '❚❚ Pause', holding: '❚❚ Pause', paused: '▶ Resume', finished: '↺ Restart' };
+  const labels: Record<PrompterState, [Parameters<typeof icon>[0], string]> = { idle: ['play', 'Play'], countdown: ['x', 'Cancel'], playing: ['pause', 'Pause'], holding: ['pause', 'Pause'], paused: ['play', 'Resume'], finished: ['reset', 'Restart'] };
   tp = new Teleprompter(stage, s, {
     onState: (st) => {
-      playBtn.textContent = labels[st];
-      playBtn.setAttribute('aria-label', labels[st].slice(2));
+      setBtn(playBtn, labels[st][0], labels[st][1]);
+      playBtn.setAttribute('aria-label', labels[st][1]);
       root.dataset.state = st;
       if (st === 'playing') scheduleHide(); else showControls();
       if (st !== 'countdown') count.textContent = '';
@@ -215,8 +216,8 @@ export function openPrompter(o: PrompterOptions): void {
   const activity = () => { showControls(); if (tp.state === 'playing') scheduleHide(); };
 
   playBtn.addEventListener('click', () => void act());
-  const resetBtn = h('button', { class: 'btn', type: 'button', on: { click: () => tp.reset() } }, '↺ Reset');
-  const exitBtn = h('button', { class: 'btn', type: 'button', on: { click: exit } }, '✕ Exit');
+  const resetBtn = h('button', { class: 'btn', type: 'button', on: { click: () => tp.reset() } }, ...ic('reset', 'Reset'));
+  const exitBtn = h('button', { class: 'btn', type: 'button', on: { click: exit } }, ...ic('x', 'Exit'));
   stage.addEventListener('click', () => void act());
   root.addEventListener('pointermove', activity);
   root.addEventListener('pointerdown', activity);

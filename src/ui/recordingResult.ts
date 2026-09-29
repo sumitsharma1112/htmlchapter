@@ -3,6 +3,7 @@ import type { Recording } from '../recording/recorder';
 import { safeFilename } from '../core/exportio';
 import { formatTime } from '../core/parser';
 import { h } from './dom';
+import { ic, icon } from './icons';
 
 /** Review dialog shown after a take. Lives on <body> so it survives leaving the prompter. */
 export function showRecordingResult(rec: Recording, title: string, onAgain?: () => void): void {
@@ -20,13 +21,13 @@ export function showRecordingResult(rec: Recording, title: string, onAgain?: () 
   };
   const dlg = h('div', { class: 'rec-dialog', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Recording finished' },
     h('div', { class: 'rec-card' },
-      h('h2', {}, rec.kind === 'video' ? '🎥 Video recorded' : '🎙 Audio recorded'),
+      h('h2', { class: 'rec-title' }, icon(rec.kind === 'video' ? 'video' : 'mic', 20), rec.kind === 'video' ? 'Video recorded' : 'Audio recorded'),
       media,
       h('p', { class: 'muted small' }, `${formatTime(rec.seconds)} · ${size} · ${filename}`),
       h('div', { class: 'row wrap' },
-        h('a', { class: 'btn primary', href: rec.url, download: filename, on: { click: () => { saved = true; } } }, '⬇ Download'),
-        onAgain && h('button', { class: 'btn', type: 'button', on: { click: () => { if (saved || confirm('Discard this take and record again?')) { close(); onAgain(); } } } }, '● Record again'),
-        h('button', { class: 'btn', type: 'button', on: { click: done } }, saved ? 'Done' : 'Discard')),
+        h('a', { class: 'btn primary', href: rec.url, download: filename, on: { click: () => { saved = true; } } }, ...ic('download', 'Download')),
+        onAgain && h('button', { class: 'btn', type: 'button', on: { click: () => { if (saved || confirm('Discard this take and record again?')) { close(); onAgain(); } } } }, ...ic('rec', 'Record again')),
+        h('button', { class: 'btn', type: 'button', on: { click: done } }, ...ic(saved ? 'check' : 'trash', saved ? 'Done' : 'Discard'))),
       h('p', { class: 'muted small' }, 'Recordings are kept only in this browser tab until you download them.')));
   document.body.append(dlg);
   (dlg.querySelector('a') as HTMLElement).focus();

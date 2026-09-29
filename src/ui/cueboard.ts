@@ -2,6 +2,7 @@ import { CUE_META, CUE_ORDER } from '../core/cueMeta';
 import type { Cue, ScriptItem } from '../core/types';
 import type { Suggestion } from '../core/suggest';
 import { h } from './dom';
+import { icon } from './icons';
 
 export interface CueChoice { label: string; cue: Cue }
 
@@ -18,8 +19,12 @@ export function cueChoices(defaults: { pause: number; longPause: number }): CueC
 }
 
 export function cueChipText(cue: Cue): string {
-  const m = CUE_META[cue.kind];
-  return `${m.icon} ${cue.kind === 'pause' ? (cue.long ? 'LONG PAUSE' : 'PAUSE') : m.label}`;
+  return cue.kind === 'pause' ? (cue.long ? 'LONG PAUSE' : 'PAUSE') : CUE_META[cue.kind].label;
+}
+
+/** Chip with a colour dot + text, so meaning never relies on colour alone. */
+export function cueChip(cue: Cue, extra = ''): HTMLElement {
+  return h('span', { class: `chip cue-${cue.kind} ${extra}`.trim() }, h('i', { class: 'dot', 'aria-hidden': 'true' }), cue.kind === 'pause' ? icon('pause', 12) : null, cueChipText(cue));
 }
 
 export interface CueBoardOptions {
@@ -39,10 +44,10 @@ export function renderCueBoard(o: CueBoardOptions): HTMLElement {
 
   const suggestionRow = (s: Suggestion) =>
     h('div', { class: 'cb-suggest', role: 'listitem' },
-      h('span', { class: 'chip ghost' }, cueChipText(s.cue) + (s.cue.kind === 'pause' ? ` ${s.cue.seconds}s` : '')),
+      cueChip(s.cue, 'ghost'),
       h('span', { class: 'cb-reason' }, s.reason),
       h('button', { class: 'btn sm', type: 'button', on: { click: () => o.onAccept?.(s) } }, 'Add'),
-      h('button', { class: 'btn sm quiet', type: 'button', 'aria-label': 'Dismiss suggestion', on: { click: () => o.onDismiss?.(s) } }, '✕'),
+      h('button', { class: 'btn sm quiet', type: 'button', 'aria-label': 'Dismiss suggestion', on: { click: () => o.onDismiss?.(s) } }, icon('x', 14)),
     );
 
   o.items.forEach((it, idx) => {
@@ -63,11 +68,11 @@ export function renderCueBoard(o: CueBoardOptions): HTMLElement {
             emit(next);
           },
         },
-      }, h('option', { value: '' }, '＋ cue'), ...choices.map((c, i) => h('option', { value: String(i) }, c.label)));
+      }, h('option', { value: '' }, '+ Cue'), ...choices.map((c, i) => h('option', { value: String(i) }, c.label)));
       root.append(h('div', { class: 'cb-line', role: 'listitem' }, h('span', { class: 'cb-text' }, it.text), select));
     } else {
       const cue = it.cue;
-      const kids: (Node | string)[] = [h('span', { class: `chip cue-${cue.kind}` }, cueChipText(cue))];
+      const kids: (Node | string)[] = [cueChip(cue)];
       if (cue.kind === 'pause') {
         const input = h('input', {
           type: 'number', min: '0', max: '60', step: '0.5', value: String(cue.seconds ?? 1.5),
@@ -87,7 +92,7 @@ export function renderCueBoard(o: CueBoardOptions): HTMLElement {
       kids.push(h('button', {
         class: 'btn sm quiet', type: 'button', 'aria-label': `Remove ${cue.kind} cue`,
         on: { click: () => { const next = o.items.slice(); next.splice(idx, 1); emit(next); } },
-      }, '✕'));
+      }, icon('x', 14)));
       root.append(h('div', { class: 'cb-cue', role: 'listitem' }, ...kids));
     }
   });
