@@ -22,7 +22,7 @@ export interface PrompterOptions {
 export function openPrompter(o: PrompterOptions): void {
   let s = { ...o.settings };
   const root = h('div', { class: 'prompter', role: 'dialog', 'aria-label': `Teleprompter: ${o.title}` });
-  root.dataset.theme = s.theme;
+  root.dataset.theme = s.prompterTheme;
   const stage = h('div', { class: 'stage' });
   const progress = h('div', { class: 'tp-progress', role: 'progressbar', 'aria-label': 'Progress', 'aria-valuemin': '0', 'aria-valuemax': '100' }, h('i'));
   const count = h('div', { class: 'tp-count', 'aria-live': 'assertive' });
@@ -33,7 +33,7 @@ export function openPrompter(o: PrompterOptions): void {
   const set = (patch: Partial<Settings>) => {
     s = { ...s, ...patch };
     tp.applySettings(s);
-    root.dataset.theme = s.theme;
+    root.dataset.theme = s.prompterTheme;
     o.onSettings(s);
     syncTweaks();
   };
@@ -56,7 +56,7 @@ export function openPrompter(o: PrompterOptions): void {
   const syncTweaks = () => { pace.set(s.speed); sliders.forEach((t) => { t.input.value = String(s[t.key]); t.out.textContent = String(Math.round(s[t.key] * 100) / 100); }); };
 
   const mirrorBtn = h('button', { class: 'btn', type: 'button', 'aria-pressed': String(s.mirror), on: { click: () => { set({ mirror: !s.mirror }); mirrorBtn.setAttribute('aria-pressed', String(s.mirror)); } } }, ...ic('mirror', 'Mirror'));
-  const themeBtn = h('button', { class: 'btn', type: 'button', on: { click: () => set({ theme: s.theme === 'dark' ? 'light' : 'dark' }) } }, ...ic('contrast', 'Theme'));
+  const themeBtn = h('button', { class: 'btn', type: 'button', on: { click: () => set({ prompterTheme: s.prompterTheme === 'dark' ? 'light' : 'dark' }) } }, ...ic('contrast', 'Light / dark'));
   const fsBtn = h('button', { class: 'btn', type: 'button', on: { click: () => toggleFs() } }, ...ic('maximize', 'Full screen'));
   const tweaks = h('div', { class: 'tweaks', hidden: true, id: 'tweaks' }, ...sliders.map((t) => t.row), h('div', { class: 'tweak-btns' }, mirrorBtn, themeBtn, fsBtn));
   const tweakToggle = h('button', { class: 'btn', type: 'button', 'aria-controls': 'tweaks', 'aria-expanded': 'false', 'aria-label': 'Display settings', on: { click: () => {

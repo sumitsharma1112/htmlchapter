@@ -262,8 +262,10 @@ export function startApp(root: HTMLElement): void {
     };
     const pos = h('select', { 'aria-label': 'Cue position', on: { change: () => updateSettings({ cuePosition: pos.value as CuePosition }) } },
       ...(['top-left', 'top-center', 'top-right', 'bottom-left', 'bottom-center', 'bottom-right'] as CuePosition[]).map((p) => h('option', { value: p, selected: p === settings.cuePosition }, p.replace('-', ' '))));
-    const theme = h('select', { 'aria-label': 'Theme', on: { change: () => updateSettings({ theme: theme.value as 'dark' | 'light' }) } },
-      h('option', { value: 'dark', selected: settings.theme === 'dark' }, 'Dark'), h('option', { value: 'light', selected: settings.theme === 'light' }, 'Light'));
+    const theme = h('select', { 'aria-label': 'App look', on: { change: () => updateSettings({ theme: theme.value as 'dark' | 'light' }) } },
+      h('option', { value: 'light', selected: settings.theme === 'light' }, 'Paper desk'), h('option', { value: 'dark', selected: settings.theme === 'dark' }, 'Night desk'));
+    const ptheme = h('select', { 'aria-label': 'Prompter screen', on: { change: () => updateSettings({ prompterTheme: ptheme.value as 'dark' | 'light' }) } },
+      h('option', { value: 'dark', selected: settings.prompterTheme === 'dark' }, 'Dark'), h('option', { value: 'light', selected: settings.prompterTheme === 'light' }, 'Light'));
     const rmode = h('select', { 'aria-label': 'Recording mode', on: { change: () => updateSettings({ recordMode: rmode.value as Settings['recordMode'] }) } },
       h('option', { value: 'off', selected: settings.recordMode === 'off' }, 'Off'), h('option', { value: 'video', selected: settings.recordMode === 'video' }, 'Selfie video + audio'), h('option', { value: 'audio', selected: settings.recordMode === 'audio' }, 'Audio only'));
     const facing = h('select', { 'aria-label': 'Camera', on: { change: () => updateSettings({ facing: facing.value as Settings['facing'] }) } },
@@ -277,7 +279,7 @@ export function startApp(root: HTMLElement): void {
           num('Font size', 'fontSize', 24, 160, 2, 'px'), num('Line spacing', 'lineHeight', 1, 2.4, 0.05), num('Text width', 'textWidth', 40, 100, 2, '%'),
           h('div', { class: 'field pace-field' }, h('span', {}, 'Scroll speed'), paceControl(settings.speed, (v) => updateSettings({ speed: v })).el), num('Countdown', 'countdown', 0, 10, 1, 's'),
           check('Mirror mode', 'mirror'), check('Cues like FASTER / SLOWER adjust scroll speed', 'cuesAdjustSpeed'),
-          h('label', { class: 'field' }, h('span', {}, 'Theme'), theme)),
+          h('label', { class: 'field' }, h('span', {}, 'App look'), theme), h('label', { class: 'field' }, h('span', {}, 'Prompter screen'), ptheme)),
         h('fieldset', {}, h('legend', {}, 'Pauses'),
           num('Default [PAUSE]', 'pause', 0, 10, 0.5, 's'), num('Default [LONG_PAUSE]', 'longPause', 0, 15, 0.5, 's')),
         h('fieldset', {}, h('legend', {}, 'Recording'),

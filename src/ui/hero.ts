@@ -44,21 +44,26 @@ export function renderHero(o: HeroOptions): HTMLElement {
         h('div', { class: 'mon-cues' },
           chip('c-louder', 'LOUDER'), chip('c-pause', 'PAUSE 1.5s', ring), chip('c-faster', 'FASTER'), chip('c-energy', 'MORE ENERGY')))),
     h('div', { class: 'mon-foot', 'aria-hidden': 'true' }, vu, h('span', {}, 'MIC')),
-    h('figcaption', {}, 'Live preview of how cues appear while you read.'));
+    h('figcaption', {}, 'a take, sped up'));
 
-  const draw = h('span', { class: 'draw' }, 'pause');
+  const draw = h('span', { class: 'draw' }, 'read');
   draw.insertAdjacentHTML('beforeend', '<svg class="scribble" viewBox="0 0 120 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2 9 C 20 3, 38 12, 58 7 S 96 4, 118 6" pathLength="1"/></svg>');
+  const pin = (n: number) => h('span', { class: `pin pin-${n}`, 'aria-hidden': 'true' }, String(n));
+  const note = (head: string, rest: string) => h('li', {}, h('span', {}, h('b', {}, head), ' ' + rest));
 
   const el = h('section', { class: 'hero', 'aria-labelledby': 'hero-title' },
+    h('div', { class: 'monitor-wrap' }, monitor, pin(1), pin(2), pin(3)),
     h('div', { class: 'hero-copy' },
-      h('h1', { id: 'hero-title' }, 'A teleprompter that knows when to ', draw, '.'),
-      h('p', { class: 'lede' }, 'Write your directions into the script — [PAUSE:1.5], [LOUDER], [SLOWER]. ReelPrompt keeps them out of your read, holds the scroll for the pauses, and flags the rest at the edge of the screen.'),
-      h('div', { class: 'row wrap' },
+      h('h1', { id: 'hero-title' }, 'What you\u2019ll see while you ', draw, '.'),
+      h('ol', { class: 'notes' },
+        note('The bright line is where you are.', 'It stays put and the text moves, so your eyes don\u2019t go hunting.'),
+        note('Directions sit at the top edge.', 'Never over your words. A pause holds the scroll and counts down.'),
+        note('Record while you read.', 'Audio or selfie video, saved on this device only.')),
+      h('div', { class: 'hero-links' },
         h('button', { class: 'btn primary', type: 'button', on: { click: o.onStart } }, ...ic('play', 'Open prompter')),
         h('button', { class: 'btn', type: 'button', on: { click: o.onLearn } }, 'Get a script from an AI')),
-      h('p', { class: 'fine' }, 'Free, no sign-up. Scripts and recordings stay on this device.')),
-    monitor,
-    h('button', { class: 'btn quiet sm hero-x', type: 'button', 'aria-label': 'Hide intro', on: { click: o.onHide } }, icon('x', 14)));
+      h('p', { class: 'fine' }, 'no account, nothing uploaded')),
+    h('button', { class: 'btn quiet sm hero-x', type: 'button', 'aria-label': 'Hide this guide', on: { click: o.onHide } }, icon('x', 14)));
 
   // Timecode follows the CSS loop; only ticks while the hero is on screen.
   const start = performance.now();

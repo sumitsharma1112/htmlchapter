@@ -9,22 +9,29 @@ export interface CueChoice { label: string; cue: Cue }
 /** Cue choices offered to non-technical users — no marker syntax required. */
 export function cueChoices(defaults: { pause: number; longPause: number }): CueChoice[] {
   const out: CueChoice[] = [
-    { label: 'Pause 1s', cue: { kind: 'pause', seconds: 1 } },
-    { label: `Pause ${defaults.pause}s`, cue: { kind: 'pause', seconds: defaults.pause, implicit: true } },
-    { label: 'Pause 2s', cue: { kind: 'pause', seconds: 2 } },
-    { label: `Long pause ${defaults.longPause}s`, cue: { kind: 'pause', seconds: defaults.longPause, long: true, implicit: true } },
+    { label: 'Pause 1 sec', cue: { kind: 'pause', seconds: 1 } },
+    { label: `Pause ${defaults.pause} sec`, cue: { kind: 'pause', seconds: defaults.pause, implicit: true } },
+    { label: 'Pause 2 sec', cue: { kind: 'pause', seconds: 2 } },
+    { label: `Long pause ${defaults.longPause} sec`, cue: { kind: 'pause', seconds: defaults.longPause, long: true, implicit: true } },
   ];
   for (const k of CUE_ORDER) if (k !== 'pause') out.push({ label: CUE_META[k].menu, cue: { kind: k } });
   return out;
 }
 
+const MARGIN: Record<Cue['kind'], string> = {
+  pause: 'hold', louder: '↑ louder', softer: '↓ softer', faster: '» faster', slower: '« slower',
+  energy_up: '↗ more energy', calm: '~ calm', whisper: 'whisper', emphasize: '! stress',
+};
+
+/** Red-pencil margin note for a cue (the marker text itself is never shown here). */
 export function cueChipText(cue: Cue): string {
-  return cue.kind === 'pause' ? (cue.long ? 'LONG PAUSE' : 'PAUSE') : CUE_META[cue.kind].label;
+  if (cue.kind === 'pause') return cue.long ? 'long hold' : 'hold';
+  return MARGIN[cue.kind];
 }
 
-/** Chip with a colour dot + text, so meaning never relies on colour alone. */
 export function cueChip(cue: Cue, extra = ''): HTMLElement {
-  return h('span', { class: `chip cue-${cue.kind} ${extra}`.trim() }, h('i', { class: 'dot', 'aria-hidden': 'true' }), cue.kind === 'pause' ? icon('pause', 12) : null, cueChipText(cue));
+  const label = cue.kind === 'pause' && extra.includes('ghost') && cue.seconds !== undefined ? `${cueChipText(cue)} ${cue.seconds}s` : cueChipText(cue);
+  return h('span', { class: `chip cue-${cue.kind} ${extra}`.trim(), title: CUE_META[cue.kind].menu }, label);
 }
 
 export interface CueBoardOptions {

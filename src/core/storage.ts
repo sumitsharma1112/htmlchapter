@@ -93,7 +93,8 @@ export interface Settings extends PauseDefaults {
   textWidth: number; // % of viewport
   speed: number; // words per minute
   mirror: boolean;
-  theme: 'dark' | 'light';
+  theme: 'dark' | 'light'; // the app's look: paper desk (light) or night desk (dark)
+  prompterTheme: 'dark' | 'light';
   countdown: number; // seconds
   cuesAdjustSpeed: boolean;
   cuePosition: CuePosition;
@@ -114,7 +115,8 @@ export const DEFAULT_SETTINGS: Settings = {
   textWidth: 86,
   speed: 140,
   mirror: false,
-  theme: 'dark',
+  theme: 'light',
+  prompterTheme: 'dark',
   countdown: 3,
   cuesAdjustSpeed: true,
   cuePosition: 'top-center',
@@ -148,7 +150,8 @@ export function sanitizeSettings(raw: Partial<Settings> | null | undefined): Set
     // values below 40 are from the old 1-20 dial — fall back to the default wpm
     speed: typeof r.speed === 'number' && r.speed >= 40 ? num(r.speed, 40, 300, d.speed) : d.speed,
     mirror: typeof r.mirror === 'boolean' ? r.mirror : d.mirror,
-    theme: r.theme === 'light' ? 'light' : 'dark',
+    theme: r.theme === 'dark' ? 'dark' : 'light',
+    prompterTheme: r.prompterTheme === 'light' ? 'light' : 'dark',
     countdown: num(r.countdown, 0, 10, d.countdown),
     cuesAdjustSpeed: typeof r.cuesAdjustSpeed === 'boolean' ? r.cuesAdjustSpeed : d.cuesAdjustSpeed,
     cuePosition: positions.includes(r.cuePosition as CuePosition) ? (r.cuePosition as CuePosition) : d.cuePosition,
