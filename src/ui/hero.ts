@@ -46,18 +46,17 @@ export function renderHero(o: HeroOptions): HTMLElement {
     h('div', { class: 'mon-foot', 'aria-hidden': 'true' }, vu, h('span', {}, 'MIC')),
     h('figcaption', {}, 'Live preview of how cues appear while you read.'));
 
-  const draw = h('span', { class: 'draw' }, 'feel the delivery.');
-  draw.insertAdjacentHTML('beforeend', '<svg class="scribble" viewBox="0 0 300 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2 9 C 40 3, 70 12, 110 7 S 190 3, 240 8 S 285 6, 298 5" pathLength="1"/></svg>');
+  const draw = h('span', { class: 'draw' }, 'pause');
+  draw.insertAdjacentHTML('beforeend', '<svg class="scribble" viewBox="0 0 120 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2 9 C 20 3, 38 12, 58 7 S 96 4, 118 6" pathLength="1"/></svg>');
 
   const el = h('section', { class: 'hero', 'aria-labelledby': 'hero-title' },
     h('div', { class: 'hero-copy' },
-      h('p', { class: 'eyebrow' }, 'Teleprompter for creators'),
-      h('h1', { id: 'hero-title' }, 'Read the script.', h('br'), draw),
-      h('p', { class: 'lede' }, 'Pauses, volume and energy cues appear at the edge of the screen — never over the words — so you can nail the take, not just the text.'),
+      h('h1', { id: 'hero-title' }, 'A teleprompter that knows when to ', draw, '.'),
+      h('p', { class: 'lede' }, 'Write your directions into the script — [PAUSE:1.5], [LOUDER], [SLOWER]. ReelPrompt keeps them out of your read, holds the scroll for the pauses, and flags the rest at the edge of the screen.'),
       h('div', { class: 'row wrap' },
-        h('button', { class: 'btn primary', type: 'button', on: { click: o.onStart } }, ...ic('play', 'Open teleprompter')),
-        h('button', { class: 'btn', type: 'button', on: { click: o.onLearn } }, 'How cues work')),
-      h('ul', { class: 'facts' }, h('li', {}, 'No account'), h('li', {}, 'Works offline'), h('li', {}, 'Audio + selfie video'), h('li', {}, 'Nothing uploaded'))),
+        h('button', { class: 'btn primary', type: 'button', on: { click: o.onStart } }, ...ic('play', 'Open prompter')),
+        h('button', { class: 'btn', type: 'button', on: { click: o.onLearn } }, 'Get a script from an AI')),
+      h('p', { class: 'fine' }, 'Free, no sign-up. Scripts and recordings stay on this device.')),
     monitor,
     h('button', { class: 'btn quiet sm hero-x', type: 'button', 'aria-label': 'Hide intro', on: { click: o.onHide } }, icon('x', 14)));
 
@@ -70,11 +69,17 @@ export function renderHero(o: HeroOptions): HTMLElement {
     tc.textContent = `00:00:${pad(Math.floor(t / 1000))}:${pad(Math.floor(((t % 1000) / 1000) * 25))}`;
   };
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
-    new IntersectionObserver(([e]) => {
+    const sync = () => {
+      if (!el.isConnected) return;
+      const r = el.getBoundingClientRect();
+      const visible = r.height > 0 && r.bottom > 0 && r.top < window.innerHeight && document.visibilityState === 'visible';
+      el.classList.toggle('paused', !visible);
       clearInterval(timer);
-      el.classList.toggle('paused', !e.isIntersecting);
-      if (e.isIntersecting) timer = window.setInterval(tick, 80);
-    }).observe(el);
+      if (visible) timer = window.setInterval(tick, 80);
+    };
+    new IntersectionObserver(sync).observe(el); // wakes us on scroll; visibility is judged from real geometry
+    document.addEventListener('visibilitychange', sync);
+    requestAnimationFrame(sync);
   }
   return el;
 }

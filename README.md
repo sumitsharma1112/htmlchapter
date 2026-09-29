@@ -50,7 +50,7 @@ A marker in the middle of a line splits that line at the marker.
 ## Teleprompter keys
 
 Space play/pause · ↑/↓ speed · ←/→ nudge · `[` `]` font size · M mirror · F full screen · R reset · Esc exit.
-Tap/click the text to play/pause. Faster/slower/energy/calm cues nudge scroll speed (toggle in Settings).
+Speed is a tortoise ⇄ rabbit bar (words per minute, with plain-language names). Tap/click the text to play/pause. Faster/slower/energy/calm cues nudge scroll speed (toggle in Settings).
 
 ## Layout
 

@@ -24,6 +24,8 @@ const P: Record<string, string> = {
   trash: '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
   list: '<line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/>',
   check: '<path d="M20 6 9 17l-5-5"/>',
+  tortoise: '<path d="M3 17c0-5.2 3.4-9 8-9s8 3.8 8 9Z"/><path d="M11 8v9M6.5 12.6h9"/><path d="M19 14.5h1.4a1.9 1.9 0 0 1 0 3.5H19"/><path d="M6.5 17v2.5M15 17v2.5"/><path d="M3 17l-1.4 1.2"/><circle cx="21" cy="15.6" r=".6" fill="currentColor"/>',
+  rabbit: '<path d="M16.2 9.2C15 5.4 15.6 2.8 17 3c1.3.2 1.3 3 .7 6"/><path d="M18.6 9.6c.3-3.2 1.7-5 2.8-4.2 1 .8.2 3.3-1.2 5.2"/><ellipse cx="18" cy="12" rx="3.4" ry="2.9"/><path d="M15.3 13.4C12 11.8 6.5 12.4 4.6 16c-.7 1.6.3 2.8 1.7 2.8H14"/><path d="M14 18.8l2.6-1.8M6.6 18.8 4 19.6"/><circle cx="3.6" cy="14.6" r="1.3"/><circle cx="19.2" cy="11.5" r=".55" fill="currentColor"/>',
   camera: '<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>',
 };
 

@@ -65,3 +65,14 @@ describe('speed setting (words per minute)', () => {
     expect(sanitizeSettings({ speed: 160 }).speed).toBe(160);
   });
 });
+
+import { paceLabel } from '../src/ui/pace';
+describe('paceLabel', () => {
+  it('names speeds in plain language', () => {
+    expect(paceLabel(60)).toBe('Very slow');
+    expect(paceLabel(100)).toBe('Slow');
+    expect(paceLabel(140)).toBe('Natural');
+    expect(paceLabel(180)).toBe('Brisk');
+    expect(paceLabel(260)).toBe('Fast');
+  });
+});

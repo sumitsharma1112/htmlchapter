@@ -15,8 +15,8 @@ import { clear, h, toast } from './dom';
 import { copyText, downloadText, pickTextFile } from './files';
 import { openPrompter } from './prompterView';
 import { renderHero } from './hero';
+import { paceControl } from './pace';
 import { ic, icon } from './icons';
-import type { IconName } from './icons';
 
 type View = 'scripts' | 'format' | 'prompt' | 'settings';
 
@@ -60,9 +60,9 @@ export function startApp(root: HTMLElement): void {
 
   const header = h('header', { class: 'top' },
     h('a', { class: 'brand', href: '#', 'aria-label': 'ReelPrompt home', on: { click: (e) => { e.preventDefault(); go('scripts'); } } },
-      h('span', { class: 'logo', 'aria-hidden': 'true' }, icon('play', 14)), 'ReelPrompt'),
+      h('span', { class: 'tally', 'aria-hidden': 'true' }), 'ReelPrompt'),
     nav,
-    h('button', { class: 'btn primary', type: 'button', on: { click: play } }, ...ic('play', 'Teleprompter')),
+    h('button', { class: 'btn primary', type: 'button', on: { click: play } }, ...ic('play', 'Open prompter')),
   );
   root.append(h('a', { class: 'skip', href: '#main' }, 'Skip to content'), header, main);
 
@@ -70,9 +70,9 @@ export function startApp(root: HTMLElement): void {
 
   function renderNav() {
     clear(nav);
-    const tabs: [View, string, IconName][] = [['scripts', 'Scripts', 'file'], ['format', 'Format', 'sparkles'], ['prompt', 'AI Prompt', 'bot'], ['settings', 'Settings', 'sliders']];
-    for (const [v, label, ico] of tabs) {
-      nav.append(h('button', { class: 'tab', type: 'button', 'aria-current': v === view ? 'page' : 'false', on: { click: () => go(v) } }, ...ic(ico, label, 16)));
+    const tabs: [View, string][] = [['scripts', 'Scripts'], ['format', 'Add cues'], ['prompt', 'AI prompt'], ['settings', 'Settings']];
+    for (const [v, label] of tabs) {
+      nav.append(h('button', { class: 'tab', type: 'button', 'aria-current': v === view ? 'page' : 'false', on: { click: () => go(v) } }, label));
     }
   }
 
@@ -222,8 +222,8 @@ export function startApp(root: HTMLElement): void {
     };
     draw();
     return h('section', { class: 'panel wide' },
-      h('h1', { class: 'h-icon' }, icon('sparkles', 22), 'Format for Performance'),
-      h('p', { class: 'muted' }, 'Paste a plain script. ReelPrompt analyzes it on your device — no AI service or API key — and suggests where to pause, slow down or add energy. You decide what to keep.'),
+      h('h1', {}, 'Format for performance'),
+      h('p', { class: 'muted' }, 'Paste a plain script and get suggestions for where to pause, slow down or push the energy. It all happens in your browser — no AI service, no key — and nothing is added until you say so.'),
       h('div', { class: 'row wrap' },
         h('button', { class: 'btn primary', type: 'button', on: { click: analyze } }, ...ic('sparkles', 'Analyze script')),
         h('button', { class: 'btn', type: 'button', disabled: !current(), on: { click: () => { ta.value = current()?.content ?? ''; analyze(); } } }, 'Use current script')),
@@ -275,7 +275,7 @@ export function startApp(root: HTMLElement): void {
       h('div', { class: 'grid' },
         h('fieldset', {}, h('legend', {}, 'Teleprompter'),
           num('Font size', 'fontSize', 24, 160, 2, 'px'), num('Line spacing', 'lineHeight', 1, 2.4, 0.05), num('Text width', 'textWidth', 40, 100, 2, '%'),
-          num('Scroll speed (words/min)', 'speed', 40, 300, 5), num('Countdown', 'countdown', 0, 10, 1, 's'),
+          h('div', { class: 'field pace-field' }, h('span', {}, 'Scroll speed'), paceControl(settings.speed, (v) => updateSettings({ speed: v })).el), num('Countdown', 'countdown', 0, 10, 1, 's'),
           check('Mirror mode', 'mirror'), check('Cues like FASTER / SLOWER adjust scroll speed', 'cuesAdjustSpeed'),
           h('label', { class: 'field' }, h('span', {}, 'Theme'), theme)),
         h('fieldset', {}, h('legend', {}, 'Pauses'),

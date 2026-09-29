@@ -8,6 +8,7 @@ import type { RecordMode } from '../recording/recorder';
 import { h, toast } from './dom';
 import { ic, icon, setBtn } from './icons';
 import { showRecordingResult } from './recordingResult';
+import { paceControl } from './pace';
 
 export interface PrompterOptions {
   title: string;
@@ -46,13 +47,13 @@ export function openPrompter(o: PrompterOptions): void {
     return { row: h('label', { class: 'tweak' }, h('span', {}, label), input, out), input, out, key };
   };
   const sliders = [
-    slider('Speed (wpm)', 'speed', 40, 300, 5),
     slider('Font size', 'fontSize', 24, 160, 2),
     slider('Line spacing', 'lineHeight', 1, 2.4, 0.05),
     slider('Text width', 'textWidth', 40, 100, 2),
     slider('Camera dim', 'camOpacity', 0.1, 0.9, 0.05),
   ];
-  const syncTweaks = () => sliders.forEach((t) => { t.input.value = String(s[t.key]); t.out.textContent = String(Math.round(s[t.key] * 100) / 100); });
+  const pace = paceControl(s.speed, (v) => set({ speed: v }));
+  const syncTweaks = () => { pace.set(s.speed); sliders.forEach((t) => { t.input.value = String(s[t.key]); t.out.textContent = String(Math.round(s[t.key] * 100) / 100); }); };
 
   const mirrorBtn = h('button', { class: 'btn', type: 'button', 'aria-pressed': String(s.mirror), on: { click: () => { set({ mirror: !s.mirror }); mirrorBtn.setAttribute('aria-pressed', String(s.mirror)); } } }, ...ic('mirror', 'Mirror'));
   const themeBtn = h('button', { class: 'btn', type: 'button', on: { click: () => set({ theme: s.theme === 'dark' ? 'light' : 'dark' }) } }, ...ic('contrast', 'Theme'));
@@ -251,6 +252,7 @@ export function openPrompter(o: PrompterOptions): void {
 
   const help = h('p', { class: 'tp-help' }, 'Space play/pause · ↑↓ speed · ←→ nudge · [ ] font · M mirror · F full screen · R reset · Esc exit');
   const bar = h('div', { class: 'tp-bar' },
+    h('div', { class: 'tp-pace' }, pace.el),
     h('div', { class: 'tp-group' }, exitBtn, resetBtn, playBtn),
     h('div', { class: 'tp-group' }, recBtn, flipBtn, stopBtn, tweakToggle),
     times);
