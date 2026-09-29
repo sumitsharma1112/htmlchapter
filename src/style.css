@@ -85,10 +85,10 @@ fieldset { border: 1px solid var(--border); border-radius: 12px; padding: 10px 1
 .prompter .btn.primary { background: var(--accent); color: #fff; }
 .stage { position: absolute; inset: 0; overflow: hidden; }
 .stage.mirror { transform: scaleX(-1); }
-.tp-viewport { position: absolute; inset: 0; overflow: hidden; }
-.tp-content { width: var(--tp-width); margin: 0 auto; will-change: transform; text-align: center; font-size: var(--tp-font); line-height: var(--tp-lh); font-weight: 700; }
-.tp-line { margin: 0 0 .25em; color: var(--tp-dim); transition: color .25s; overflow-wrap: anywhere; }
-.tp-line.current { color: inherit; } .tp-line.done { opacity: .75; }
+.tp-viewport { position: absolute; inset: 0; overflow: hidden; contain: strict; }
+.tp-content { width: var(--tp-width); margin: 0 auto; will-change: transform; backface-visibility: hidden; text-align: center; font-size: var(--tp-font); line-height: var(--tp-lh); font-weight: 700; }
+.tp-line { margin: 0 0 .25em; color: var(--tp-dim); overflow-wrap: anywhere; }
+.tp-line.current { color: inherit; }
 .tp-gap { height: .6em; } .tp-anchor { display: block; height: 0; }
 .tp-readline { position: absolute; left: 0; top: var(--tp-read); width: 14px; height: 2px; background: var(--accent); transform: translateY(-1px); opacity: .8; pointer-events: none; }
 .tp-readline::after { content: ''; position: absolute; left: 14px; top: -4px; border: 5px solid transparent; border-left-color: var(--accent); border-right: 0; }

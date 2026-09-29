@@ -28,6 +28,9 @@ export class Teleprompter {
   private anchors: Anchor[] = [];
   private y = 0;
   private maxY = 1;
+  private vh = 0;
+  private lastSec = -1;
+  private lastPct = -1;
   private mult = 1;
   private elapsed = 0;
   private holdLeft = 0;
@@ -104,11 +107,13 @@ export class Teleprompter {
 
   /** Recompute geometry (after resize / font changes). Keeps relative position. */
   measure(): void {
-    if (!this.viewport.clientHeight) return;
+    const vh = this.viewport.clientHeight;
+    if (!vh) return;
+    this.vh = vh;
     const frac = this.maxY > 0 ? this.y / this.maxY : 0;
-    const pad = this.viewport.clientHeight * READ_LINE;
+    const pad = vh * READ_LINE;
     this.content.style.paddingTop = `${pad}px`;
-    this.content.style.paddingBottom = `${this.viewport.clientHeight - pad}px`;
+    this.content.style.paddingBottom = `${vh - pad}px`;
     this.lineTops = this.lineEls.map((e) => e.offsetTop + e.offsetHeight / 2);
     const prev = this.anchors;
     this.anchors = this.anchorEls.map((a, i) => ({ cue: a.cue, y: a.el.offsetTop - pad, fired: prev[i]?.fired ?? false }));
@@ -144,6 +149,7 @@ export class Teleprompter {
     this.cancelCountdown(false);
     this.y = 0;
     this.elapsed = 0;
+    this.lastSec = -1;
     this.mult = 1;
     this.holdLeft = 0;
     this.holdHandle?.remove();
@@ -241,7 +247,7 @@ export class Teleprompter {
     const y = this.reduceMotion ? Math.round(this.y) : this.y;
     this.content.style.transform = `translate3d(0, ${-y}px, 0)`;
     // Current line = the one nearest the reading line.
-    const target = this.y + this.viewport.clientHeight * READ_LINE;
+    const target = this.y + this.vh * READ_LINE;
     let idx = 0;
     for (let i = 0; i < this.lineTops.length; i++) {
       if (this.lineTops[i] <= target + 4) idx = i; else break;
@@ -250,9 +256,15 @@ export class Teleprompter {
       this.lineEls[this.activeIdx]?.classList.remove('current');
       this.lineEls[idx]?.classList.add('current');
       this.activeIdx = idx;
-      this.lineEls.forEach((e, i) => e.classList.toggle('done', i < idx));
     }
-    this.ev.onProgress(this.progress());
+    // Only touch the DOM outside the scroll layer when something visible changed.
+    const sec = Math.floor(this.elapsed);
+    const pct = Math.round((this.y / this.maxY) * 1000);
+    if (sec !== this.lastSec || pct !== this.lastPct) {
+      this.lastSec = sec;
+      this.lastPct = pct;
+      this.ev.onProgress(this.progress());
+    }
   }
 
   progress(): { progress: number; elapsed: number; remaining: number } {
