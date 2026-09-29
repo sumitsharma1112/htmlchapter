@@ -57,3 +57,11 @@ describe('export & suggestions', () => {
     expect(out).toContain('hain?\n[PAUSE:1]');
   });
 });
+
+describe('speed setting (words per minute)', () => {
+  it('migrates the old 1-20 dial to the default and clamps wpm', () => {
+    expect(sanitizeSettings({ speed: 8 }).speed).toBe(DEFAULT_SETTINGS.speed);
+    expect(sanitizeSettings({ speed: 500 }).speed).toBe(300);
+    expect(sanitizeSettings({ speed: 160 }).speed).toBe(160);
+  });
+});

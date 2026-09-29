@@ -89,7 +89,7 @@ export interface Settings extends PauseDefaults {
   fontSize: number; // px
   lineHeight: number;
   textWidth: number; // % of viewport
-  speed: number; // 1-20
+  speed: number; // words per minute
   mirror: boolean;
   theme: 'dark' | 'light';
   countdown: number; // seconds
@@ -107,7 +107,7 @@ export const DEFAULT_SETTINGS: Settings = {
   fontSize: 56,
   lineHeight: 1.45,
   textWidth: 86,
-  speed: 8,
+  speed: 140,
   mirror: false,
   theme: 'dark',
   countdown: 3,
@@ -137,7 +137,8 @@ export function sanitizeSettings(raw: Partial<Settings> | null | undefined): Set
     fontSize: num(r.fontSize, 20, 200, d.fontSize),
     lineHeight: num(r.lineHeight, 1, 2.6, d.lineHeight),
     textWidth: num(r.textWidth, 30, 100, d.textWidth),
-    speed: num(r.speed, 1, 20, d.speed),
+    // values below 40 are from the old 1-20 dial — fall back to the default wpm
+    speed: typeof r.speed === 'number' && r.speed >= 40 ? num(r.speed, 40, 300, d.speed) : d.speed,
     mirror: typeof r.mirror === 'boolean' ? r.mirror : d.mirror,
     theme: r.theme === 'light' ? 'light' : 'dark',
     countdown: num(r.countdown, 0, 10, d.countdown),

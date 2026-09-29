@@ -1,5 +1,6 @@
 import type { Cue, ScriptItem } from '../core/types';
 import type { Settings } from '../core/storage';
+import { countWords } from '../core/parser';
 import { CueOverlay, cueLabel } from './cues';
 
 export type PrompterState = 'idle' | 'countdown' | 'playing' | 'holding' | 'paused' | 'finished';
@@ -29,6 +30,7 @@ export class Teleprompter {
   private y = 0;
   private maxY = 1;
   private vh = 0;
+  private words = 1;
   private lastSec = -1;
   private lastPct = -1;
   private mult = 1;
@@ -66,6 +68,7 @@ export class Teleprompter {
     this.content.textContent = '';
     this.lineEls = [];
     this.anchors = [];
+    this.words = Math.max(1, items.reduce((n, i) => (i.type === 'line' ? n + countWords(i.text) : n), 0));
     const frag = document.createDocumentFragment();
     const anchorEls: { el: HTMLElement; cue: Cue }[] = [];
     for (const it of items) {
@@ -216,7 +219,8 @@ export class Teleprompter {
   };
 
   pxPerSec(): number {
-    return this.settings.speed * this.settings.fontSize * 0.09;
+    // speed is words per minute; convert using this script's real height-per-word so pace is font/width independent
+    return ((this.settings.speed / 60) * this.maxY) / this.words;
   }
 
   private fireCues(): void {

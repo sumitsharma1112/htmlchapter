@@ -42,7 +42,7 @@ export function openPrompter(o: PrompterOptions): void {
     return { row: h('label', { class: 'tweak' }, h('span', {}, label), input, out), input, out, key };
   };
   const sliders = [
-    slider('Speed', 'speed', 1, 20, 0.5),
+    slider('Speed (wpm)', 'speed', 40, 300, 5),
     slider('Font size', 'fontSize', 24, 160, 2),
     slider('Line spacing', 'lineHeight', 1, 2.4, 0.05),
     slider('Text width', 'textWidth', 40, 100, 2),
@@ -82,7 +82,8 @@ export function openPrompter(o: PrompterOptions): void {
     onCountdown: (n) => { count.textContent = n > 0 ? String(n) : ''; },
     onProgress: ({ progress: p, elapsed, remaining }) => {
       (progress.firstElementChild as HTMLElement).style.transform = `scaleX(${p})`;
-      progress.setAttribute('aria-valuenow', String(Math.round(p * 100)));
+      const pc = String(Math.round(p * 100));
+      if (progress.getAttribute('aria-valuenow') !== pc) progress.setAttribute('aria-valuenow', pc);
       times.textContent = `${formatTime(elapsed)} elapsed · ${formatTime(remaining)} left`;
     },
   });
@@ -112,8 +113,8 @@ export function openPrompter(o: PrompterOptions): void {
     if (k === ' ' || k === 'k') tp.state === 'finished' ? tp.reset() : tp.toggle();
     else if (k === 'Escape') { if (!document.fullscreenElement) exit(); }
     else if (k === 'r' || k === 'R') tp.reset();
-    else if (k === 'ArrowUp' || k === '+' || k === '=') set({ speed: Math.min(20, s.speed + 0.5) });
-    else if (k === 'ArrowDown' || k === '-' || k === '_') set({ speed: Math.max(1, s.speed - 0.5) });
+    else if (k === 'ArrowUp' || k === '+' || k === '=') set({ speed: Math.min(300, s.speed + 10) });
+    else if (k === 'ArrowDown' || k === '-' || k === '_') set({ speed: Math.max(40, s.speed - 10) });
     else if (k === 'ArrowLeft' || k === 'PageUp') tp.nudge(-lineStep() * (k === 'PageUp' ? 4 : 1));
     else if (k === 'ArrowRight' || k === 'PageDown') tp.nudge(lineStep() * (k === 'PageDown' ? 4 : 1));
     else if (k === '[') set({ fontSize: Math.max(24, s.fontSize - 4) });

@@ -259,7 +259,7 @@ export function startApp(root: HTMLElement): void {
       h('div', { class: 'grid' },
         h('fieldset', {}, h('legend', {}, 'Teleprompter'),
           num('Font size', 'fontSize', 24, 160, 2, 'px'), num('Line spacing', 'lineHeight', 1, 2.4, 0.05), num('Text width', 'textWidth', 40, 100, 2, '%'),
-          num('Scroll speed', 'speed', 1, 20, 0.5), num('Countdown', 'countdown', 0, 10, 1, 's'),
+          num('Scroll speed (words/min)', 'speed', 40, 300, 5), num('Countdown', 'countdown', 0, 10, 1, 's'),
           check('Mirror mode', 'mirror'), check('Cues like FASTER / SLOWER adjust scroll speed', 'cuesAdjustSpeed'),
           h('label', { class: 'field' }, h('span', {}, 'Theme'), theme)),
         h('fieldset', {}, h('legend', {}, 'Pauses'),
