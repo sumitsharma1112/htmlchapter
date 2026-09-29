@@ -101,3 +101,15 @@ describe('canonical demo script', () => {
     expect(p.unknown).toEqual([]);
   });
 });
+
+describe('malformed markers', () => {
+  it('a negative pause is not a marker (stays visible text, flagged as unknown)', () => {
+    const p = parseScript('A.\n[PAUSE:-1]\nB.');
+    expect(p.cueCount).toBe(0);
+    expect(p.unknown).toEqual(['[PAUSE:-1]']);
+  });
+  it('hyphenated natural variants still work', () => {
+    expect(parseScript('(speak-louder)').cueCount).toBe(1);
+    expect(parseScript('[LONG-PAUSE:3]').items[0]).toMatchObject({ cue: { kind: 'pause', seconds: 3, long: true } });
+  });
+});

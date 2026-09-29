@@ -19,15 +19,16 @@ export function showRecordingResult(rec: Recording, title: string, onAgain?: () 
     if (!saved && !confirm('You have not downloaded this recording. Discard it?')) return;
     close();
   };
+  const doneBtn = h('button', { class: 'btn', type: 'button', on: { click: done } }, 'Discard');
   const dlg = h('div', { class: 'rec-dialog', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Recording finished' },
     h('div', { class: 'rec-card' },
       h('h2', { class: 'rec-title' }, icon(rec.kind === 'video' ? 'video' : 'mic', 20), rec.kind === 'video' ? 'Video recorded' : 'Audio recorded'),
       media,
       h('p', { class: 'muted small' }, `${formatTime(rec.seconds)} · ${size} · ${filename}`),
       h('div', { class: 'row wrap' },
-        h('a', { class: 'btn primary', href: rec.url, download: filename, on: { click: () => { saved = true; } } }, ...ic('download', 'Download')),
+        h('a', { class: 'btn primary', href: rec.url, download: filename, on: { click: () => { saved = true; doneBtn.replaceChildren(document.createTextNode('Done')); } } }, ...ic('download', 'Download')),
         onAgain && h('button', { class: 'btn', type: 'button', on: { click: () => { if (saved || confirm('Discard this take and record again?')) { close(); onAgain(); } } } }, ...ic('rec', 'Record again')),
-        h('button', { class: 'btn', type: 'button', on: { click: done } }, ...ic(saved ? 'check' : 'trash', saved ? 'Done' : 'Discard'))),
+        doneBtn),
       h('p', { class: 'muted small' }, 'Recordings are kept only in this browser tab until you download them.')));
   document.body.append(dlg);
   (dlg.querySelector('a') as HTMLElement).focus();

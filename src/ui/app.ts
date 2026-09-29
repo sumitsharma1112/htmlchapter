@@ -266,6 +266,8 @@ export function startApp(root: HTMLElement): void {
       h('option', { value: 'light', selected: settings.theme === 'light' }, 'Paper desk'), h('option', { value: 'dark', selected: settings.theme === 'dark' }, 'Night desk'));
     const ptheme = h('select', { 'aria-label': 'Prompter screen', on: { change: () => updateSettings({ prompterTheme: ptheme.value as 'dark' | 'light' }) } },
       h('option', { value: 'dark', selected: settings.prompterTheme === 'dark' }, 'Dark'), h('option', { value: 'light', selected: settings.prompterTheme === 'light' }, 'Light'));
+    const rmodeSel = h('select', { 'aria-label': 'Reading mode', on: { change: () => updateSettings({ cuesEnabled: rmodeSel.value === 'cues' }) } },
+      h('option', { value: 'cues', selected: settings.cuesEnabled }, 'With cues and pauses'), h('option', { value: 'plain', selected: !settings.cuesEnabled }, 'Plain text only'));
     const rmode = h('select', { 'aria-label': 'Recording mode', on: { change: () => updateSettings({ recordMode: rmode.value as Settings['recordMode'] }) } },
       h('option', { value: 'off', selected: settings.recordMode === 'off' }, 'Off'), h('option', { value: 'video', selected: settings.recordMode === 'video' }, 'Selfie video + audio'), h('option', { value: 'audio', selected: settings.recordMode === 'audio' }, 'Audio only'));
     const facing = h('select', { 'aria-label': 'Camera', on: { change: () => updateSettings({ facing: facing.value as Settings['facing'] }) } },
@@ -278,7 +280,7 @@ export function startApp(root: HTMLElement): void {
         h('fieldset', {}, h('legend', {}, 'Teleprompter'),
           num('Font size', 'fontSize', 24, 160, 2, 'px'), num('Line spacing', 'lineHeight', 1, 2.4, 0.05), num('Text width', 'textWidth', 40, 100, 2, '%'),
           h('div', { class: 'field pace-field' }, h('span', {}, 'Scroll speed'), paceControl(settings.speed, (v) => updateSettings({ speed: v })).el), num('Countdown', 'countdown', 0, 10, 1, 's'),
-          check('Mirror mode', 'mirror'), check('Cues like FASTER / SLOWER adjust scroll speed', 'cuesAdjustSpeed'),
+          h('label', { class: 'field' }, h('span', {}, 'Reading mode'), rmodeSel), check('Mirror mode', 'mirror'), check('Cues like FASTER / SLOWER adjust scroll speed', 'cuesAdjustSpeed'),
           h('label', { class: 'field' }, h('span', {}, 'App look'), theme), h('label', { class: 'field' }, h('span', {}, 'Prompter screen'), ptheme)),
         h('fieldset', {}, h('legend', {}, 'Pauses'),
           num('Default [PAUSE]', 'pause', 0, 10, 0.5, 's'), num('Default [LONG_PAUSE]', 'longPause', 0, 15, 0.5, 's')),

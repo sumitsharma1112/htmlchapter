@@ -21,26 +21,33 @@ function uid(): string {
 }
 
 export class ScriptStore {
+  /** Session copy: the source of truth whenever storage is blocked (private mode) or a save failed. */
+  private mem: StoredScript[] | null = null;
+  private persistFailed = false;
+
   constructor(private kv: KV) {}
 
   list(): StoredScript[] {
+    if (this.persistFailed && this.mem) return [...this.mem].sort((a, b) => b.updatedAt - a.updatedAt);
     try {
       const raw = this.kv.getItem(SCRIPTS_KEY);
       const arr = raw ? JSON.parse(raw) : [];
-      if (!Array.isArray(arr)) return [];
-      return (arr as StoredScript[])
-        .filter((s) => s && typeof s.id === 'string' && typeof s.content === 'string')
-        .sort((a, b) => b.updatedAt - a.updatedAt);
+      if (!Array.isArray(arr)) return this.mem ?? [];
+      const ok = (arr as StoredScript[]).filter((s) => s && typeof s.id === 'string' && typeof s.content === 'string');
+      this.mem = ok;
+      return [...ok].sort((a, b) => b.updatedAt - a.updatedAt);
     } catch {
-      return [];
+      return this.mem ? [...this.mem].sort((a, b) => b.updatedAt - a.updatedAt) : [];
     }
   }
 
   private write(all: StoredScript[]): void {
+    this.mem = all;
     try {
       this.kv.setItem(SCRIPTS_KEY, JSON.stringify(all));
+      this.persistFailed = false;
     } catch {
-      /* storage full / blocked — in-memory state still works for this session */
+      this.persistFailed = true; // keep working in memory for this session
     }
   }
 
@@ -96,6 +103,8 @@ export interface Settings extends PauseDefaults {
   theme: 'dark' | 'light'; // the app's look: paper desk (light) or night desk (dark)
   prompterTheme: 'dark' | 'light';
   countdown: number; // seconds
+  /** false = plain teleprompter: no cue chips, no pauses, no speed changes. */
+  cuesEnabled: boolean;
   cuesAdjustSpeed: boolean;
   cuePosition: CuePosition;
   cueSize: number; // px
@@ -118,6 +127,7 @@ export const DEFAULT_SETTINGS: Settings = {
   theme: 'light',
   prompterTheme: 'dark',
   countdown: 3,
+  cuesEnabled: true,
   cuesAdjustSpeed: true,
   cuePosition: 'top-center',
   cueSize: 22,
@@ -153,6 +163,7 @@ export function sanitizeSettings(raw: Partial<Settings> | null | undefined): Set
     theme: r.theme === 'dark' ? 'dark' : 'light',
     prompterTheme: r.prompterTheme === 'light' ? 'light' : 'dark',
     countdown: num(r.countdown, 0, 10, d.countdown),
+    cuesEnabled: typeof r.cuesEnabled === 'boolean' ? r.cuesEnabled : d.cuesEnabled,
     cuesAdjustSpeed: typeof r.cuesAdjustSpeed === 'boolean' ? r.cuesAdjustSpeed : d.cuesAdjustSpeed,
     cuePosition: positions.includes(r.cuePosition as CuePosition) ? (r.cuePosition as CuePosition) : d.cuePosition,
     cueSize: num(r.cueSize, 12, 44, d.cueSize),

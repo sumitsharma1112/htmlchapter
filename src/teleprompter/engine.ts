@@ -31,6 +31,7 @@ export class Teleprompter {
   private maxY = 1;
   private vh = 0;
   private words = 1;
+  private lineHeights: number[] = [];
   private lastSec = -1;
   private lastPct = -1;
   private mult = 1;
@@ -104,6 +105,7 @@ export class Teleprompter {
     st.setProperty('--tp-width', `${s.textWidth}%`);
     st.setProperty('--tp-read', `${READ_LINE * 100}%`);
     this.stage.classList.toggle('mirror', s.mirror);
+    if (!s.cuesEnabled) this.dropCues(); // plain mode: end any pause / speed change in progress
     this.overlay.apply(s);
     this.measure();
   }
@@ -118,12 +120,24 @@ export class Teleprompter {
     this.content.style.paddingTop = `${pad}px`;
     this.content.style.paddingBottom = `${vh - pad}px`;
     this.lineTops = this.lineEls.map((e) => e.offsetTop + e.offsetHeight / 2);
+    this.lineHeights = this.lineEls.map((e) => e.offsetHeight);
+    this.cueGeometry();
     const prev = this.anchors;
     this.anchors = this.anchorEls.map((a, i) => ({ cue: a.cue, y: a.el.offsetTop - pad, fired: prev[i]?.fired ?? false }));
     const lastEl = this.lineEls[this.lineEls.length - 1];
     this.maxY = Math.max(1, lastEl ? lastEl.offsetTop + lastEl.offsetHeight - pad : 1);
     this.y = Math.min(this.maxY, frac * this.maxY);
     this.render();
+  }
+
+  /** Tell the cue overlay how much room it has: cues must never reach the line being read. */
+  private cueGeometry(): void {
+    const i = Math.max(0, this.activeIdx);
+    const tallest = Math.max(0, ...this.lineHeights.slice(Math.max(0, i - 1), i + 3));
+    // The current line is the last one whose centre is at/above the reading line, so it can extend a full
+    // line-pitch higher (plus the gap) than a line centred exactly on it.
+    const above = tallest * 1.5 + this.settings.fontSize * 0.25;
+    this.overlay.setGeometry({ readY: this.vh * READ_LINE, above, below: tallest / 2, vh: this.vh, vw: this.viewport.clientWidth });
   }
 
   /* -------- transport -------- */
@@ -163,6 +177,15 @@ export class Teleprompter {
     this.render();
   }
 
+  private dropCues(): void {
+    this.holdLeft = 0;
+    this.holdHandle?.remove();
+    this.holdHandle = null;
+    this.mult = 1;
+    this.overlay.clear();
+    if (this.state === 'holding') this.setState('playing');
+  }
+
   /** Manual nudge (arrow keys / wheel). Re-arms cues that were skipped backwards. */
   nudge(px: number): void {
     this.y = Math.min(this.maxY, Math.max(0, this.y + px));
@@ -197,7 +220,7 @@ export class Teleprompter {
     this.elapsed += dt;
     if (this.holdLeft > 0) {
       this.holdLeft -= dt;
-      this.holdHandle?.update(cueLabel({ kind: 'pause', seconds: Math.ceil(Math.max(0, this.holdLeft) * 10) / 10 }, this.settings));
+      this.holdHandle?.update(cueLabel({ kind: 'pause', seconds: Math.max(0.1, Math.ceil(Math.max(0, this.holdLeft) * 10) / 10) }, this.settings));
       if (this.holdLeft <= 0) {
         this.holdLeft = 0;
         this.holdHandle?.remove();
@@ -230,6 +253,7 @@ export class Teleprompter {
       const isPause = a.cue.kind === 'pause';
       if (a.y > this.y + (isPause ? 0 : lookahead)) break;
       a.fired = true;
+      if (!this.settings.cuesEnabled) continue; // plain mode: markers are inert
       if (isPause) {
         const secs = a.cue.seconds ?? this.settings.pause;
         if (secs > 0) {
@@ -260,6 +284,7 @@ export class Teleprompter {
       this.lineEls[this.activeIdx]?.classList.remove('current');
       this.lineEls[idx]?.classList.add('current');
       this.activeIdx = idx;
+      this.cueGeometry();
     }
     // Only touch the DOM outside the scroll layer when something visible changed.
     const sec = Math.floor(this.elapsed);
@@ -273,7 +298,7 @@ export class Teleprompter {
 
   progress(): { progress: number; elapsed: number; remaining: number } {
     const progress = this.maxY > 0 ? this.y / this.maxY : 0;
-    const pauses = this.anchors.reduce((t, a) => (!a.fired && a.cue.kind === 'pause' ? t + (a.cue.seconds ?? 0) : t), 0);
+    const pauses = !this.settings.cuesEnabled ? 0 : this.anchors.reduce((t, a) => (!a.fired && a.cue.kind === 'pause' ? t + (a.cue.seconds ?? 0) : t), 0);
     const remaining = this.state === 'finished' ? 0 : (this.maxY - this.y) / (this.pxPerSec() * this.mult) + pauses + this.holdLeft;
     return { progress, elapsed: this.elapsed, remaining };
   }

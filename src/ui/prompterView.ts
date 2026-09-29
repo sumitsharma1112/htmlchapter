@@ -23,6 +23,7 @@ export function openPrompter(o: PrompterOptions): void {
   let s = { ...o.settings };
   const root = h('div', { class: 'prompter', role: 'dialog', 'aria-label': `Teleprompter: ${o.title}` });
   root.dataset.theme = s.prompterTheme;
+  root.dataset.state = 'idle';
   const stage = h('div', { class: 'stage' });
   const progress = h('div', { class: 'tp-progress', role: 'progressbar', 'aria-label': 'Progress', 'aria-valuemin': '0', 'aria-valuemax': '100' }, h('i'));
   const count = h('div', { class: 'tp-count', 'aria-live': 'assertive' });
@@ -52,9 +53,19 @@ export function openPrompter(o: PrompterOptions): void {
     slider('Text width', 'textWidth', 40, 100, 2),
     slider('Camera dim', 'camOpacity', 0.1, 0.9, 0.05),
   ];
-  const pace = paceControl(s.speed, (v) => set({ speed: v }));
-  const syncTweaks = () => { pace.set(s.speed); sliders.forEach((t) => { t.input.value = String(s[t.key]); t.out.textContent = String(Math.round(s[t.key] * 100) / 100); }); };
+  let pace: ReturnType<typeof paceControl>;
+  const syncTweaks = () => { pace.set(s.speed); syncSeg(); sliders.forEach((t) => { t.input.value = String(s[t.key]); t.out.textContent = String(Math.round(s[t.key] * 100) / 100); }); };
 
+  const segBtn = (label: string, on: boolean) => h('button', { class: 'seg-btn', type: 'button', 'aria-pressed': String(on), on: { click: () => set({ cuesEnabled: on }) } }, label);
+  const segPlain = segBtn('Plain', false);
+  const segCues = segBtn('With cues', true);
+  const seg = h('div', { class: 'seg', role: 'group', 'aria-label': 'Reading mode' }, segPlain, segCues);
+  const syncSeg = () => {
+    segPlain.setAttribute('aria-pressed', String(!s.cuesEnabled));
+    segCues.setAttribute('aria-pressed', String(s.cuesEnabled));
+    root.classList.toggle('plain', !s.cuesEnabled);
+  };
+  pace = paceControl(s.speed, (v) => set({ speed: v }), seg);
   const mirrorBtn = h('button', { class: 'btn', type: 'button', 'aria-pressed': String(s.mirror), on: { click: () => { set({ mirror: !s.mirror }); mirrorBtn.setAttribute('aria-pressed', String(s.mirror)); } } }, ...ic('mirror', 'Mirror'));
   const themeBtn = h('button', { class: 'btn', type: 'button', on: { click: () => set({ prompterTheme: s.prompterTheme === 'dark' ? 'light' : 'dark' }) } }, ...ic('contrast', 'Light / dark'));
   const fsBtn = h('button', { class: 'btn', type: 'button', on: { click: () => toggleFs() } }, ...ic('maximize', 'Full screen'));
@@ -179,7 +190,11 @@ export function openPrompter(o: PrompterOptions): void {
     try {
       if (tp.state === 'finished') tp.reset();
       if (tp.state === 'idle') {
-        if (s.recordMode !== 'off' && !armed && !(await arm())) return;
+        if (s.recordMode !== 'off' && !armed && !(await arm())) {
+          // never block reading just because the camera/mic is unavailable
+          set({ recordMode: 'off' });
+          window.setTimeout(() => toast('Recording is off, but you can still read.'), 2400);
+        }
         takeActive = s.recordMode !== 'off';
         tp.play();
       } else tp.toggle();
@@ -243,6 +258,7 @@ export function openPrompter(o: PrompterOptions): void {
     else if (k === 'ArrowRight' || k === 'PageDown') tp.nudge(lineStep() * (k === 'PageDown' ? 4 : 1));
     else if (k === '[') set({ fontSize: Math.max(24, s.fontSize - 4) });
     else if (k === ']') set({ fontSize: Math.min(160, s.fontSize + 4) });
+    else if (k === 'c' || k === 'C') set({ cuesEnabled: !s.cuesEnabled });
     else if (k === 'm' || k === 'M') { set({ mirror: !s.mirror }); mirrorBtn.setAttribute('aria-pressed', String(s.mirror)); }
     else if (k === 'f' || k === 'F') toggleFs();
     else handled = false;
@@ -250,13 +266,12 @@ export function openPrompter(o: PrompterOptions): void {
   }
   document.addEventListener('keydown', onKey, true);
 
-  const help = h('p', { class: 'tp-help' }, 'Space play/pause · ↑↓ speed · ←→ nudge · [ ] font · M mirror · F full screen · R reset · Esc exit');
+  const help = h('p', { class: 'tp-help' }, 'Space play/pause · ↑↓ speed · ←→ nudge · [ ] font · C cues on/off · M mirror · F full screen · R reset · Esc exit');
   const bar = h('div', { class: 'tp-bar' },
     h('div', { class: 'tp-pace' }, pace.el),
     h('div', { class: 'tp-group' }, exitBtn, resetBtn, playBtn),
-    h('div', { class: 'tp-group' }, recBtn, flipBtn, stopBtn, tweakToggle),
-    times);
-  root.append(camVideo, progress, stage, count, badge, tweaks, bar, help);
+    h('div', { class: 'tp-group' }, recBtn, flipBtn, stopBtn, tweakToggle));
+  root.append(camVideo, progress, stage, count, badge, times, tweaks, bar, help);
   document.body.append(root);
   // keep the screen awake while prompting, and warn before losing a take
   let wake: { release(): Promise<void> } | null = null;
@@ -269,6 +284,7 @@ export function openPrompter(o: PrompterOptions): void {
   void requestWake();
 
   syncRecUi();
+  syncSeg();
   tp.measure();
   playBtn.focus();
   if (s.recordMode !== 'off') void arm(); // preview appears straight away (needs a permission tap on first use)

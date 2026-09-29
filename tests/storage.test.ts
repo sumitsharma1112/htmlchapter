@@ -76,3 +76,36 @@ describe('paceLabel', () => {
     expect(paceLabel(260)).toBe('Fast');
   });
 });
+
+describe('reading mode', () => {
+  it('defaults to cues on and accepts plain mode', () => {
+    expect(sanitizeSettings({}).cuesEnabled).toBe(true);
+    expect(sanitizeSettings({ cuesEnabled: false }).cuesEnabled).toBe(false);
+    expect(sanitizeSettings({ cuesEnabled: 'no' as never }).cuesEnabled).toBe(true);
+  });
+});
+
+describe('ScriptStore when storage is blocked', () => {
+  const blocked = { getItem: () => { throw new Error('blocked'); }, setItem: () => { throw new Error('blocked'); } };
+  it('still creates, edits and lists scripts in memory', () => {
+    const s = new ScriptStore(blocked);
+    const a = s.create('One', 'hello');
+    expect(s.get(a.id)?.content).toBe('hello');
+    s.update(a.id, { content: 'changed' });
+    expect(s.list()).toHaveLength(1);
+    expect(s.get(a.id)?.content).toBe('changed');
+    s.remove(a.id);
+    expect(s.list()).toHaveLength(0);
+  });
+  it('keeps unsaved scripts when only writing fails (storage full)', () => {
+    const data = new Map<string, string>();
+    let full = false;
+    const kv = { getItem: (k: string) => data.get(k) ?? null, setItem: (k: string, v: string) => { if (full) throw new Error('quota'); data.set(k, v); } };
+    const s = new ScriptStore(kv);
+    s.create('Saved', 'a');
+    full = true;
+    const b = s.create('Unsaved', 'b');
+    expect(s.list().map((x) => x.name).sort()).toEqual(['Saved', 'Unsaved']);
+    expect(s.get(b.id)?.content).toBe('b');
+  });
+});

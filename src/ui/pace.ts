@@ -16,7 +16,7 @@ export function paceLabel(wpm: number): string {
 const pct = (v: number) => ((v - PACE_MIN) / (PACE_MAX - PACE_MIN)) * 100;
 
 /** Tortoise ⇄ rabbit speed bar. Tap either animal to nudge; the readout gives wpm and a plain-language name. */
-export function paceControl(value: number, onInput: (v: number) => void): { el: HTMLElement; set(v: number): void } {
+export function paceControl(value: number, onInput: (v: number) => void, extra?: HTMLElement): { el: HTMLElement; set(v: number): void } {
   const read = h('output', { class: 'pace-read', 'aria-live': 'off' });
   const range = h('input', { class: 'pace-range', type: 'range', min: String(PACE_MIN), max: String(PACE_MAX), step: '5', 'aria-label': 'Scroll speed, words per minute' });
   const slow = h('button', { class: 'pace-end', type: 'button', 'aria-label': 'Slower', title: 'Slower', on: { click: () => bump(-10) } }, icon('tortoise', 26));
@@ -35,6 +35,6 @@ export function paceControl(value: number, onInput: (v: number) => void): { el: 
   range.addEventListener('input', () => { const v = parseFloat(range.value); paint(v); onInput(v); });
   paint(value);
 
-  const el = h('div', { class: 'pace' }, slow, h('div', { class: 'pace-track' }, range, ticks), fast, read);
+  const el = h('div', { class: 'pace' }, slow, h('div', { class: 'pace-track' }, range, ticks), fast, read, extra);
   return { el, set: paint };
 }

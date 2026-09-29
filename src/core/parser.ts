@@ -40,7 +40,8 @@ export function interpretMarker(
   bracket: boolean,
   defaults: PauseDefaults = DEFAULT_PAUSES,
 ): Cue | null {
-  const norm = body.toLowerCase().replace(/[_\-:]+/g, ' ').replace(/\s+/g, ' ').trim();
+  // '-' and '_' join words (LONG_PAUSE, speak-louder) but a '-' before a digit must survive so [PAUSE:-1] is rejected, not read as 1
+  const norm = body.toLowerCase().replace(/[_:]+/g, ' ').replace(/(?<=[a-z])-(?=[a-z])/g, ' ').replace(/\s+/g, ' ').trim();
   const p = PAUSE_RE.exec(norm);
   if (p) {
     const long = !!p[1];

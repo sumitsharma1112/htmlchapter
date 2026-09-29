@@ -38,7 +38,7 @@ export function suggestCues(items: ScriptItem[]): Suggestion[] {
     }
     // Strong exclamation or ALL-CAPS word → emphasis before the line.
     const caps = /\b[A-Z]{3,}\b/.test(text) && /[a-z]/.test(text);
-    if ((caps || /!["”’)]*$/.test(text)) && text.split(/\s+/).length >= 3 && !taken(idx) && sinceLast >= 3) {
+    if ((caps || /!["”’)]*$/.test(text)) && text.split(/\s+/).length >= 2 && !taken(idx) && sinceLast >= 2) {
       out.push({ id: `s${idx}e`, index: idx, cue: { kind: caps ? 'emphasize' : 'energy_up' }, reason: caps ? 'CAPS word — stress it' : 'Exclamation — raise the energy' });
       sinceLast = 0;
       return;
