@@ -121,7 +121,12 @@ export function startApp(root: HTMLElement): void {
       clearTimeout(saveTimer);
       saveTimer = window.setTimeout(() => store.update(sc.id, { content: ta.value }), 250);
     };
-    ta.addEventListener('input', () => { persist(); refresh(); });
+    let refreshTimer = 0;
+    ta.addEventListener('input', () => {
+      persist();
+      clearTimeout(refreshTimer); // rebuilding the cue board per keystroke is costly — wait for a pause in typing
+      refreshTimer = window.setTimeout(() => refresh(), 180);
+    });
     ta.addEventListener('blur', () => { clearTimeout(saveTimer); store.update(sc.id, { content: ta.value }); });
 
     const insertCue = (marker: string) => {
