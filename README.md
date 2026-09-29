@@ -10,6 +10,7 @@ npm install
 npm run dev      # http://localhost:5173
 npm run build    # typecheck + production build in dist/
 npm run test     # vitest
+npm run dev:https  # HTTPS on your LAN — needed for camera/mic on a phone
 ```
 
 ## Implemented
@@ -24,7 +25,20 @@ npm run test     # vitest
 | 6 AI Script Prompt | Editable master prompt + COPY PROMPT (`src/core/prompt.ts`) |
 | 7 Import / export | Import `.txt`; export Clean `.txt` and ReelPrompt `.txt`; copy clean; copy for AI (prompt + your script) |
 | 8 Responsive / a11y | Mobile-friendly controls, reduced-motion, focus rings, ARIA labels, skip link, light/dark |
+| Recording | `src/recording/recorder.ts` (MediaRecorder wrapper), preview + review dialog in `src/ui/` |
 | ✨ Format for Performance | Local heuristics (`src/core/suggest.ts`) suggest cues; accept/dismiss in a structured editor |
+
+## Recording (audio & selfie video)
+
+In the prompter, tap **Rec** to cycle Off → 🎥 Video → 🎙 Audio. The camera preview appears dimmed behind the text
+(adjust with *Camera dim*), **Flip** switches front/back camera, and recording starts when scrolling starts (after the
+countdown) and stops when the script finishes or you tap **■ Stop rec**. A review dialog lets you play back and
+download the take (MP4 where the browser supports it, otherwise WebM; `.m4a`/`.webm` for audio). Only the camera and
+microphone are recorded — never the script — and the saved video is not mirrored. Nothing is uploaded.
+
+**Browsers only allow camera/mic on HTTPS or `localhost`.** To test on a phone on the same Wi-Fi run
+`npm run dev:https` (or `npm run build && npm run preview:https`), open the printed `https://<lan-ip>:port` address and
+accept the self-signed certificate warning once.
 
 ## Markers
 

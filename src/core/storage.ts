@@ -81,6 +81,8 @@ export class ScriptStore {
 
 /* ---------------- Settings ---------------- */
 
+export type RecordModeSetting = 'off' | 'video' | 'audio';
+
 export type CuePosition =
   | 'top-left' | 'top-center' | 'top-right'
   | 'bottom-left' | 'bottom-center' | 'bottom-right';
@@ -100,6 +102,9 @@ export interface Settings extends PauseDefaults {
   cueDuration: number; // seconds
   cueIcons: boolean;
   cueText: boolean;
+  recordMode: RecordModeSetting;
+  facing: 'user' | 'environment';
+  camOpacity: number; // camera preview brightness behind the text
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -118,6 +123,9 @@ export const DEFAULT_SETTINGS: Settings = {
   cueDuration: 2.5,
   cueIcons: true,
   cueText: true,
+  recordMode: 'off',
+  facing: 'user',
+  camOpacity: 0.45,
 };
 
 const SETTINGS_KEY = 'reelprompt.settings.v1';
@@ -149,6 +157,9 @@ export function sanitizeSettings(raw: Partial<Settings> | null | undefined): Set
     cueDuration: num(r.cueDuration, 0.5, 10, d.cueDuration),
     cueIcons: typeof r.cueIcons === 'boolean' ? r.cueIcons : d.cueIcons,
     cueText: typeof r.cueText === 'boolean' ? r.cueText : d.cueText,
+    recordMode: r.recordMode === 'video' || r.recordMode === 'audio' ? r.recordMode : 'off',
+    facing: r.facing === 'environment' ? 'environment' : 'user',
+    camOpacity: num(r.camOpacity, 0.1, 0.9, d.camOpacity),
   };
 }
 

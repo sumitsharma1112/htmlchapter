@@ -3,7 +3,10 @@ import type { Settings } from '../core/storage';
 import { formatTime } from '../core/parser';
 import { Teleprompter } from '../teleprompter/engine';
 import type { PrompterState } from '../teleprompter/engine';
-import { h } from './dom';
+import { Recorder, describeMediaError } from '../recording/recorder';
+import type { RecordMode } from '../recording/recorder';
+import { h, toast } from './dom';
+import { showRecordingResult } from './recordingResult';
 
 export interface PrompterOptions {
   title: string;
@@ -33,7 +36,7 @@ export function openPrompter(o: PrompterOptions): void {
     syncTweaks();
   };
 
-  const slider = (label: string, key: 'speed' | 'fontSize' | 'lineHeight' | 'textWidth', min: number, max: number, step: number) => {
+  const slider = (label: string, key: 'speed' | 'fontSize' | 'lineHeight' | 'textWidth' | 'camOpacity', min: number, max: number, step: number) => {
     const out = h('output', {}, String(s[key]));
     const input = h('input', {
       type: 'range', min: String(min), max: String(max), step: String(step), value: String(s[key]), 'aria-label': label,
@@ -46,6 +49,7 @@ export function openPrompter(o: PrompterOptions): void {
     slider('Font size', 'fontSize', 24, 160, 2),
     slider('Line spacing', 'lineHeight', 1, 2.4, 0.05),
     slider('Text width', 'textWidth', 40, 100, 2),
+    slider('Camera dim', 'camOpacity', 0.1, 0.9, 0.05),
   ];
   const syncTweaks = () => sliders.forEach((t) => { t.input.value = String(s[t.key]); t.out.textContent = String(Math.round(s[t.key] * 100) / 100); });
 
@@ -59,8 +63,12 @@ export function openPrompter(o: PrompterOptions): void {
   } } }, 'Aa');
 
   const exit = () => {
+    exited = true;
+    window.removeEventListener('beforeunload', warnUnload);
+    void releaseWake();
     document.removeEventListener('keydown', onKey, true);
     if (document.fullscreenElement) void document.exitFullscreen().catch(() => undefined);
+    void stopRecording().finally(() => { rec.close(); clearInterval(badgeTimer); });
     tp.destroy();
     root.remove();
     o.onExit();
@@ -70,6 +78,112 @@ export function openPrompter(o: PrompterOptions): void {
     else void root.requestFullscreen?.().catch(() => undefined);
   };
 
+  /* ---------- audio / selfie-video recording ---------- */
+  const rec = new Recorder();
+  const camVideo = h('video', { class: 'cam-bg', playsInline: true, autoplay: true, hidden: true, 'aria-hidden': 'true' });
+  camVideo.muted = true;
+  const badge = h('div', { class: 'rec-badge', hidden: true, 'aria-live': 'polite' });
+  const recBtn = h('button', { class: 'btn', type: 'button', on: { click: () => void cycleMode() } });
+  const flipBtn = h('button', { class: 'btn', type: 'button', 'aria-label': 'Switch camera', on: { click: () => void flipCamera() } }, '⟲ Flip');
+  const stopBtn = h('button', { class: 'btn danger-solid', type: 'button', hidden: true, on: { click: () => { tp.pause(); void stopRecording(); } } }, '■ Stop rec');
+  let armed = false;
+  let takeActive = false;
+  let exited = false;
+  let busy = false;
+  let badgeTimer = 0;
+  const MODE_LABEL: Record<RecordMode, string> = { off: '● Rec: Off', video: '🎥 Video', audio: '🎙 Audio' };
+
+  function updateBadge() {
+    if (rec.recording) { badge.hidden = false; badge.classList.add('live'); badge.textContent = `● REC ${formatTime(rec.seconds)}`; }
+    else if (armed) { badge.hidden = false; badge.classList.remove('live'); badge.textContent = s.recordMode === 'video' ? '🎥 Camera ready' : '🎙 Mic ready'; }
+    else badge.hidden = true;
+  }
+  function syncRecUi() {
+    recBtn.textContent = MODE_LABEL[s.recordMode];
+    recBtn.setAttribute('aria-label', `Recording mode: ${s.recordMode}. Activate to change.`);
+    recBtn.disabled = rec.recording;
+    flipBtn.hidden = s.recordMode !== 'video';
+    flipBtn.disabled = rec.recording;
+    stopBtn.hidden = !rec.recording;
+    camVideo.classList.toggle('front', s.facing === 'user');
+    root.style.setProperty('--cam-opacity', String(s.camOpacity));
+    root.classList.toggle('has-cam', s.recordMode === 'video' && armed);
+    updateBadge();
+  }
+  function disarm() {
+    rec.close();
+    armed = false;
+    camVideo.srcObject = null;
+    camVideo.hidden = true;
+    syncRecUi();
+  }
+  /** Ask for camera/mic permission and show the live preview. */
+  async function arm(): Promise<boolean> {
+    if (s.recordMode === 'off') { disarm(); return true; }
+    try {
+      const stream = await rec.open(s.recordMode, s.facing);
+      armed = true;
+      if (s.recordMode === 'video') {
+        camVideo.srcObject = stream;
+        camVideo.hidden = false;
+        await camVideo.play().catch(() => undefined);
+      } else { camVideo.srcObject = null; camVideo.hidden = true; }
+      syncRecUi();
+      return true;
+    } catch (e) {
+      disarm();
+      toast(describeMediaError(e));
+      return false;
+    }
+  }
+  async function cycleMode() {
+    if (busy || rec.recording) return;
+    busy = true;
+    const order: RecordMode[] = ['off', 'video', 'audio'];
+    set({ recordMode: order[(order.indexOf(s.recordMode) + 1) % 3] });
+    await arm();
+    busy = false;
+  }
+  async function flipCamera() {
+    if (busy || rec.recording) return;
+    busy = true;
+    set({ facing: s.facing === 'user' ? 'environment' : 'user' });
+    await arm();
+    busy = false;
+  }
+  function beginTake() {
+    if (!takeActive || rec.recording || !armed) return;
+    try {
+      rec.start();
+      clearInterval(badgeTimer);
+      badgeTimer = window.setInterval(updateBadge, 500);
+      syncRecUi();
+    } catch (e) { takeActive = false; toast(describeMediaError(e)); }
+  }
+  async function stopRecording() {
+    takeActive = false;
+    if (!rec.recording) return;
+    clearInterval(badgeTimer);
+    const r = await rec.stop();
+    syncRecUi();
+    if (!r) return toast('Nothing was recorded');
+    if (r.seconds < 3) { URL.revokeObjectURL(r.url); return toast('Take discarded (shorter than 3 seconds)'); }
+    showRecordingResult(r, o.title, exited ? undefined : () => { tp.reset(); void act(); });
+  }
+  /** Play/pause; the first play of a take opens the devices, then starts recording when scrolling begins. */
+  async function act() {
+    if (busy) return;
+    busy = true;
+    try {
+      if (tp.state === 'finished') tp.reset();
+      if (tp.state === 'idle') {
+        if (s.recordMode !== 'off' && !armed && !(await arm())) return;
+        takeActive = s.recordMode !== 'off';
+        tp.play();
+      } else tp.toggle();
+    } finally { busy = false; }
+  }
+
   const labels: Record<PrompterState, string> = { idle: '▶ Play', countdown: '✕ Cancel', playing: '❚❚ Pause', holding: '❚❚ Pause', paused: '▶ Resume', finished: '↺ Restart' };
   tp = new Teleprompter(stage, s, {
     onState: (st) => {
@@ -78,6 +192,9 @@ export function openPrompter(o: PrompterOptions): void {
       root.dataset.state = st;
       if (st === 'playing') scheduleHide(); else showControls();
       if (st !== 'countdown') count.textContent = '';
+      if (st === 'playing') beginTake();
+      if (st === 'finished' && rec.recording) window.setTimeout(() => { if (tp.state === 'finished') void stopRecording(); }, 1200);
+      if (st === 'idle' && rec.recording) void stopRecording();
     },
     onCountdown: (n) => { count.textContent = n > 0 ? String(n) : ''; },
     onProgress: ({ progress: p, elapsed, remaining }) => {
@@ -97,10 +214,10 @@ export function openPrompter(o: PrompterOptions): void {
   };
   const activity = () => { showControls(); if (tp.state === 'playing') scheduleHide(); };
 
-  playBtn.addEventListener('click', () => (tp.state === 'finished' ? (tp.reset(), tp.play()) : tp.toggle()));
+  playBtn.addEventListener('click', () => void act());
   const resetBtn = h('button', { class: 'btn', type: 'button', on: { click: () => tp.reset() } }, '↺ Reset');
   const exitBtn = h('button', { class: 'btn', type: 'button', on: { click: exit } }, '✕ Exit');
-  stage.addEventListener('click', () => { tp.state === 'finished' ? tp.reset() : tp.toggle(); });
+  stage.addEventListener('click', () => void act());
   root.addEventListener('pointermove', activity);
   root.addEventListener('pointerdown', activity);
 
@@ -110,7 +227,7 @@ export function openPrompter(o: PrompterOptions): void {
     if (t.tagName === 'INPUT' && (e.key === ' ' || e.key.startsWith('Arrow'))) return; // let sliders work
     const k = e.key;
     let handled = true;
-    if (k === ' ' || k === 'k') tp.state === 'finished' ? tp.reset() : tp.toggle();
+    if (k === ' ' || k === 'k') void act();
     else if (k === 'Escape') { if (!document.fullscreenElement) exit(); }
     else if (k === 'r' || k === 'R') tp.reset();
     else if (k === 'ArrowUp' || k === '+' || k === '=') set({ speed: Math.min(300, s.speed + 10) });
@@ -127,9 +244,24 @@ export function openPrompter(o: PrompterOptions): void {
   document.addEventListener('keydown', onKey, true);
 
   const help = h('p', { class: 'tp-help' }, 'Space play/pause · ↑↓ speed · ←→ nudge · [ ] font · M mirror · F full screen · R reset · Esc exit');
-  const bar = h('div', { class: 'tp-bar' }, exitBtn, resetBtn, playBtn, tweakToggle, times);
-  root.append(progress, stage, count, tweaks, bar, help);
+  const bar = h('div', { class: 'tp-bar' },
+    h('div', { class: 'tp-group' }, exitBtn, resetBtn, playBtn),
+    h('div', { class: 'tp-group' }, recBtn, flipBtn, stopBtn, tweakToggle),
+    times);
+  root.append(camVideo, progress, stage, count, badge, tweaks, bar, help);
   document.body.append(root);
+  // keep the screen awake while prompting, and warn before losing a take
+  let wake: { release(): Promise<void> } | null = null;
+  const requestWake = async () => { try { wake = (await (navigator as unknown as { wakeLock?: { request(t: string): Promise<{ release(): Promise<void> }> } }).wakeLock?.request('screen')) ?? null; } catch { /* unsupported */ } };
+  async function releaseWake() { try { await wake?.release(); } catch { /* ignore */ } wake = null; document.removeEventListener('visibilitychange', onVis); }
+  const onVis = () => { if (document.visibilityState === 'visible' && !exited) void requestWake(); };
+  const warnUnload = (e: BeforeUnloadEvent) => { if (rec.recording) { e.preventDefault(); e.returnValue = ''; } };
+  document.addEventListener('visibilitychange', onVis);
+  window.addEventListener('beforeunload', warnUnload);
+  void requestWake();
+
+  syncRecUi();
   tp.measure();
   playBtn.focus();
+  if (s.recordMode !== 'off') void arm(); // preview appears straight away (needs a permission tap on first use)
 }
