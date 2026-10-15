@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xmeml>
+<xmeml version="4"><sequence id="seq1"><name>Beat Sync - Tajdar</name><duration>1213</duration>
+<rate><timebase>30</timebase><ntsc>FALSE</ntsc></rate>
+<marker><name>Beat 1</name><comment>vocal beat</comment><in>3</in><out>-1</out></marker>
+<marker><name>Beat 2</name><comment>vocal beat</comment><in>20</in><out>-1</out></marker>
+<marker><name>Beat 3</name><comment>vocal beat</comment><in>33</in><out>-1</out></marker>
+<marker><name>Beat 4</name><comment>vocal beat</comment><in>47</in><out>-1</out></marker>
+<marker><name>Beat 5</name><comment>vocal beat</comment><in>63</in><out>-1</out></marker>
+<marker><name>Beat 6</name><comment>vocal beat</comment><in>78</in><out>-1</out></marker>
+<marker><name>Beat 7</name><comment>vocal beat</comment><in>92</in><out>-1</out></marker>
+<marker><name>Beat 8</name><comment>vocal beat</comment><in>106</in><out>-1</out></marker>
+<marker><name>Beat 9</name><comment>vocal beat</comment><in>120</in><out>-1</out></marker>
+<marker><name>Beat 10</name><comment>vocal beat</comment><in>135</in><out>-1</out></marker>
+<marker><name>Beat 11</name><comment>vocal beat</comment><in>150</in><out>-1</out></marker>
+<marker><name>Beat 12</name><comment>vocal beat</comment><in>164</in><out>-1</out></marker>
+<marker><name>Beat 13</name><comment>vocal beat</comment><in>178</in><out>-1</out></marker>
+<marker><name>Beat 14</name><comment>vocal beat</comment><in>192</in><out>-1</out></marker>
+<marker><name>Beat 15</name><comment>vocal beat</comment><in>205</in><out>-1</out></marker>
+<marker><name>Beat 16</name><comment>vocal beat</comment><in>219</in><out>-1</out></marker>
+<marker><name>Beat 17</name><comment>vocal beat</comment><in>232</in><out>-1</out></marker>
+<marker><name>Beat 18</name><comment>vocal beat</comment><in>246</in><out>-1</out></marker>
+<marker><name>Beat 19</name><comment>vocal beat</comment><in>259</in><out>-1</out></marker>
+<marker><name>Beat 20</name><comment>vocal beat</comment><in>272</in><out>-1</out></marker>
+<marker><name>Beat 21</name><comment>vocal beat</comment><in>286</in><out>-1</out></marker>
+<marker><name>Beat 22</name><comment>vocal beat</comment><in>300</in><out>-1</out></marker>
+<marker><name>Beat 23</name><comment>vocal beat</comment><in>313</in><out>-1</out></marker>
+<marker><name>Beat 24</name><comment>vocal beat</comment><in>327</in><out>-1</out></marker>
+<marker><name>Beat 25</name><comment>vocal beat</comment><in>340</in><out>-1</out></marker>
+<marker><name>Beat 26</name><comment>vocal beat</comment><in>354</in><out>-1</out></marker>
+<marker><name>Beat 27</name><comment>vocal beat</comment><in>366</in><out>-1</out></marker>
+<marker><name>Beat 28</name><comment>vocal beat</comment><in>380</in><out>-1</out></marker>
+<marker><name>Beat 29</name><comment>vocal beat</comment><in>394</in><out>-1</out></marker>
+<marker><name>Beat 30</name><comment>vocal beat</comment><in>409</in><out>-1</out></marker>
+<marker><name>Beat 31</name><comment>vocal beat</comment><in>424</in><out>-1</out></marker>
+<marker><name>Beat 32</name><comment>vocal beat</comment><in>438</in><out>-1</out></marker>
+<marker><name>Beat 33</name><comment>vocal beat</comment><in>452</in><out>-1</out></marker>
+<marker><name>Beat 34</name><comment>vocal beat</comment><in>466</in><out>-1</out></marker>
+<marker><name>Beat 35</name><comment>vocal beat</comment><in>480</in><out>-1</out></marker>
+<marker><name>Beat 36</name><comment>vocal beat</comment><in>493</in><out>-1</out></marker>
+<marker><name>Beat 37</name><comment>vocal beat</comment><in>507</in><out>-1</out></marker>
+<marker><name>Beat 38</name><comment>vocal beat</comment><in>520</in><out>-1</out></marker>
+<marker><name>Beat 39</name><comment>vocal beat</comment><in>534</in><out>-1</out></marker>
+<marker><name>Beat 40</name><comment>vocal beat</comment><in>547</in><out>-1</out></marker>
+<marker><name>Beat 41</name><comment>vocal beat</comment><in>561</in><out>-1</out></marker>
+<marker><name>Beat 42</name><comment>vocal beat</comment><in>574</in><out>-1</out></marker>
+<marker><name>Beat 43</name><comment>vocal beat</comment><in>587</in><out>-1</out></marker>
+<marker><name>Beat 44</name><comment>vocal beat</comment><in>600</in><out>-1</out></marker>
+<marker><name>Beat 45</name><comment>vocal beat</comment><in>614</in><out>-1</out></marker>
+<marker><name>Beat 46</name><comment>vocal beat</comment><in>627</in><out>-1</out></marker>
+<marker><name>Beat 47</name><comment>vocal beat</comment><in>642</in><out>-1</out></marker>
+<marker><name>Beat 48</name><comment>vocal beat</comment><in>655</in><out>-1</out></marker>
+<marker><name>Beat 49</name><comment>vocal beat</comment><in>669</in><out>-1</out></marker>
+<marker><name>Beat 50</name><comment>vocal beat</comment><in>682</in><out>-1</out></marker>
+<marker><name>Beat 51</name><comment>vocal beat</comment><in>696</in><out>-1</out></marker>
+<marker><name>Beat 52</name><comment>vocal beat</comment><in>709</in><out>-1</out></marker>
+<marker><name>Beat 53</name><comment>vocal beat</comment><in>723</in><out>-1</out></marker>
+<marker><name>Beat 54</name><comment>vocal beat</comment><in>736</in><out>-1</out></marker>
+<marker><name>Beat 55</name><comment>vocal beat</comment><in>750</in><out>-1</out></marker>
+<marker><name>Beat 56</name><comment>vocal beat</comment><in>763</in><out>-1</out></marker>
+<marker><name>Beat 57</name><comment>vocal beat</comment><in>777</in><out>-1</out></marker>
+<marker><name>Beat 58</name><comment>vocal beat</comment><in>790</in><out>-1</out></marker>
+<marker><name>Beat 59</name><comment>vocal beat</comment><in>805</in><out>-1</out></marker>
+<marker><name>Beat 60</name><comment>vocal beat</comment><in>819</in><out>-1</out></marker>
+<marker><name>Beat 61</name><comment>vocal beat</comment><in>834</in><out>-1</out></marker>
+<marker><name>Beat 62</name><comment>vocal beat</comment><in>848</in><out>-1</out></marker>
+<marker><name>Beat 63</name><comment>vocal beat</comment><in>862</in><out>-1</out></marker>
+<marker><name>Beat 64</name><comment>vocal beat</comment><in>876</in><out>-1</out></marker>
+<marker><name>Beat 65</name><comment>vocal beat</comment><in>890</in><out>-1</out></marker>
+<marker><name>Beat 66</name><comment>vocal beat</comment><in>903</in><out>-1</out></marker>
+<marker><name>Beat 67</name><comment>vocal beat</comment><in>916</in><out>-1</out></marker>
+<marker><name>Beat 68</name><comment>vocal beat</comment><in>930</in><out>-1</out></marker>
+<marker><name>Beat 69</name><comment>vocal beat</comment><in>943</in><out>-1</out></marker>
+<marker><name>Beat 70</name><comment>vocal beat</comment><in>956</in><out>-1</out></marker>
+<marker><name>Beat 71</name><comment>vocal beat</comment><in>970</in><out>-1</out></marker>
+<marker><name>Beat 72</name><comment>vocal beat</comment><in>984</in><out>-1</out></marker>
+<marker><name>Beat 73</name><comment>vocal beat</comment><in>998</in><out>-1</out></marker>
+<marker><name>Beat 74</name><comment>vocal beat</comment><in>1011</in><out>-1</out></marker>
+<marker><name>Beat 75</name><comment>vocal beat</comment><in>1024</in><out>-1</out></marker>
+<marker><name>Beat 76</name><comment>vocal beat</comment><in>1037</in><out>-1</out></marker>
+<marker><name>Beat 77</name><comment>vocal beat</comment><in>1050</in><out>-1</out></marker>
+<marker><name>Beat 78</name><comment>vocal beat</comment><in>1064</in><out>-1</out></marker>
+<marker><name>Beat 79</name><comment>vocal beat</comment><in>1078</in><out>-1</out></marker>
+<marker><name>Beat 80</name><comment>vocal beat</comment><in>1092</in><out>-1</out></marker>
+<marker><name>Beat 81</name><comment>vocal beat</comment><in>1105</in><out>-1</out></marker>
+<marker><name>Beat 82</name><comment>vocal beat</comment><in>1118</in><out>-1</out></marker>
+<marker><name>Beat 83</name><comment>vocal beat</comment><in>1132</in><out>-1</out></marker>
+<marker><name>Beat 84</name><comment>vocal beat</comment><in>1146</in><out>-1</out></marker>
+<marker><name>Beat 85</name><comment>vocal beat</comment><in>1159</in><out>-1</out></marker>
+<media><video><format><samplecharacteristics><rate><timebase>30</timebase><ntsc>FALSE</ntsc></rate><width>720</width><height>1280</height><pixelaspectratio>square</pixelaspectratio></samplecharacteristics></format>
+<track><clipitem id="v1"><name>Tajdar-E-Haram.mp4</name><duration>1213</duration><rate><timebase>30</timebase><ntsc>FALSE</ntsc></rate><start>0</start><end>1213</end><in>0</in><out>1213</out>
+<file id="f1"><name>Tajdar-E-Haram.mp4</name><pathurl>file://localhost/Tajdar-E-Haram.mp4</pathurl><rate><timebase>30</timebase><ntsc>FALSE</ntsc></rate><duration>1213</duration><media><video/><audio/></media></file>
+<link><linkclipref>v1</linkclipref></link><link><linkclipref>a1</linkclipref></link></clipitem></track></video>
+<audio><track><clipitem id="a1"><name>Tajdar-E-Haram.mp4</name><duration>1213</duration><rate><timebase>30</timebase><ntsc>FALSE</ntsc></rate><start>0</start><end>1213</end><in>0</in><out>1213</out><file id="f1"/><sourcetrack><mediatype>audio</mediatype><trackindex>1</trackindex></sourcetrack></clipitem></track></audio>
+</media></sequence></xmeml>
